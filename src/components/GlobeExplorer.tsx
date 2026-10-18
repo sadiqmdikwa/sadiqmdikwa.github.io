@@ -15,6 +15,13 @@ function getCountryColor(name: string): string {
   return COUNTRY_COLORS[hash % COUNTRY_COLORS.length];
 }
 
+const getResponsiveDefaultScale = () => {
+  if (typeof window === "undefined") return 280;
+  if (window.innerWidth < 480) return 175; // Small mobile
+  if (window.innerWidth < 768) return 210; // Tablet
+  return 280; // Desktop
+};
+
 export default function GlobeExplorer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const navigate = useNavigate();
@@ -32,8 +39,8 @@ export default function GlobeExplorer() {
 
   const rotationRef = useRef<[number, number, number]>([-10, -15, 0]);
   const targetRotationRef = useRef<[number, number, number]>([-10, -15, 0]);
-  const scaleRef = useRef<number>(280);
-  const targetScaleRef = useRef<number>(280);
+  const scaleRef = useRef<number>(getResponsiveDefaultScale());
+  const targetScaleRef = useRef<number>(getResponsiveDefaultScale());
   const isDraggingRef = useRef<boolean>(false);
   const hasDraggedRef = useRef<boolean>(false);
   const lastMouseRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -74,7 +81,7 @@ export default function GlobeExplorer() {
       if (e.deltaY < 0) {
         targetScaleRef.current = Math.min(1400, targetScaleRef.current + 80);
       } else {
-        targetScaleRef.current = Math.max(140, targetScaleRef.current - 80);
+        targetScaleRef.current = Math.max(120, targetScaleRef.current - 80);
       }
     };
 
@@ -179,7 +186,7 @@ export default function GlobeExplorer() {
     };
   }, [worldGeoJson, selectedCountry, hoveredCountryName, isAutoSpinning]);
 
-  // Mouse Mouse Controls
+  // Mouse Controls
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsAutoSpinning(false);
     isDraggingRef.current = true;
@@ -270,7 +277,7 @@ export default function GlobeExplorer() {
       const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
       const diff = dist - touchStartDistRef.current;
 
-      targetScaleRef.current = Math.min(1400, Math.max(140, targetScaleRef.current + diff * 1.5));
+      targetScaleRef.current = Math.min(1400, Math.max(120, targetScaleRef.current + diff * 1.5));
       touchStartDistRef.current = dist;
     }
   };
@@ -319,7 +326,9 @@ export default function GlobeExplorer() {
         lng: coords[0]
       };
       setSelectedCountry(country);
-      targetScaleRef.current = 850;
+
+      const responsiveTapScale = window.innerWidth < 640 ? 520 : 850;
+      targetScaleRef.current = responsiveTapScale;
       targetRotationRef.current = [-country.lng, -country.lat, 0];
     }
   };
@@ -331,12 +340,12 @@ export default function GlobeExplorer() {
 
   const handleZoomOut = () => {
     setIsAutoSpinning(false);
-    targetScaleRef.current = Math.max(140, targetScaleRef.current - 120);
+    targetScaleRef.current = Math.max(120, targetScaleRef.current - 120);
   };
 
   const handleResetView = () => {
     targetRotationRef.current = [-10, -15, 0];
-    targetScaleRef.current = 280;
+    targetScaleRef.current = getResponsiveDefaultScale();
     setSelectedCountry(null);
     setIsAutoSpinning(true);
   };
@@ -346,7 +355,8 @@ export default function GlobeExplorer() {
     const country = countriesMap[countryName];
     if (country) {
       setSelectedCountry(country);
-      targetScaleRef.current = 850;
+      const responsiveTapScale = window.innerWidth < 640 ? 520 : 850;
+      targetScaleRef.current = responsiveTapScale;
       targetRotationRef.current = [-country.lng, -country.lat, 0];
     }
   };
@@ -370,7 +380,7 @@ export default function GlobeExplorer() {
       </div>
 
       {/* Minimalist Page Header */}
-      <header className="mb-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+      <header className="mb-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
         <div className="lg:col-span-7 text-center lg:text-left">
           <div className="inline-flex items-center gap-2 text-geoCyan font-semibold uppercase tracking-wider text-xs mb-2 bg-geoCyan/10 px-3 py-1 rounded-full border border-geoCyan/20">
             <GlobeIcon className="w-3.5 h-3.5" />
@@ -389,9 +399,9 @@ export default function GlobeExplorer() {
       </header>
 
       {/* Map Card Shell */}
-      <div className="relative rounded-[2.5rem] border border-white/10 bg-gray-900/50 shadow-2xl backdrop-blur-xl overflow-hidden p-0 h-[650px] md:h-[720px] flex items-center justify-center">
+      <div className="relative rounded-[2rem] sm:rounded-[2.5rem] border border-white/10 bg-gray-900/50 shadow-2xl backdrop-blur-xl overflow-hidden p-0 h-[550px] sm:h-[650px] md:h-[720px] flex items-center justify-center">
         {/* Top Floating Search & Quiz Bar */}
-        <div className="absolute top-5 left-5 right-5 z-30 flex items-center justify-between gap-3 pointer-events-none">
+        <div className="absolute top-4 sm:top-5 left-4 sm:left-5 right-4 sm:right-5 z-30 flex items-center justify-between gap-3 pointer-events-none">
           {/* Live Typing Autocomplete Search Input (Press Enter to Search & Zoom!) */}
           <div className="relative pointer-events-auto hidden md:block w-64">
             <div className="flex items-center gap-2 bg-gray-900/90 border border-white/15 rounded-full px-3.5 py-2 backdrop-blur-xl shadow-2xl focus-within:border-geoCyan/60">
@@ -456,7 +466,7 @@ export default function GlobeExplorer() {
           <div className="pointer-events-auto ml-auto">
             <button
               onClick={() => navigate("/game")}
-              className="inline-flex items-center gap-2 bg-geoYellow hover:bg-geoCyan text-gray-950 px-5 py-2 rounded-full border border-geoYellow/40 transition-all text-xs font-black uppercase tracking-wider shadow-lg cursor-pointer"
+              className="inline-flex items-center gap-2 bg-geoYellow hover:bg-geoCyan text-gray-950 px-4 sm:px-5 py-2 rounded-full border border-geoYellow/40 transition-all text-xs font-black uppercase tracking-wider shadow-lg cursor-pointer"
             >
               <Trophy className="w-4 h-4" />
               <span>Start Quiz</span>
@@ -485,29 +495,29 @@ export default function GlobeExplorer() {
         />
 
         {/* Control Overlay Instructions */}
-        <div className="absolute bottom-5 left-5 z-30 flex items-center gap-2 text-[11px] font-mono text-gray-400 bg-black/60 px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-md pointer-events-none">
+        <div className="absolute bottom-4 sm:bottom-5 left-4 sm:left-5 z-30 flex items-center gap-2 text-[10px] sm:text-[11px] font-mono text-gray-400 bg-black/60 px-3.5 sm:px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-md pointer-events-none">
           <span className="text-geoCyan font-bold">pinch/scroll</span> zoom • <span className="text-geoCyan font-bold">drag</span> rotate
         </div>
 
         {/* Bottom Left Floating Zoom Buttons */}
-        <div className="absolute bottom-16 left-5 z-30 flex flex-col gap-2">
+        <div className="absolute bottom-16 sm:bottom-16 left-4 sm:left-5 z-30 flex flex-col gap-2">
           <button
             onClick={handleZoomIn}
-            className="w-10 h-10 rounded-2xl bg-gray-900/80 hover:bg-gray-800 border border-white/15 text-white flex items-center justify-center shadow-xl backdrop-blur-xl transition-all cursor-pointer hover:border-geoCyan/60 text-lg font-bold"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gray-900/80 hover:bg-gray-800 border border-white/15 text-white flex items-center justify-center shadow-xl backdrop-blur-xl transition-all cursor-pointer hover:border-geoCyan/60 text-lg font-bold"
             title="Zoom In"
           >
             +
           </button>
           <button
             onClick={handleZoomOut}
-            className="w-10 h-10 rounded-2xl bg-gray-900/80 hover:bg-gray-800 border border-white/15 text-white flex items-center justify-center shadow-xl backdrop-blur-xl transition-all cursor-pointer hover:border-geoCyan/60 text-lg font-bold"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gray-900/80 hover:bg-gray-800 border border-white/15 text-white flex items-center justify-center shadow-xl backdrop-blur-xl transition-all cursor-pointer hover:border-geoCyan/60 text-lg font-bold"
             title="Zoom Out"
           >
             -
           </button>
           <button
             onClick={handleResetView}
-            className="w-10 h-10 rounded-2xl bg-gray-900/80 hover:bg-gray-800 border border-white/15 text-white flex items-center justify-center shadow-xl backdrop-blur-xl transition-all cursor-pointer hover:border-geoCyan/60"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gray-900/80 hover:bg-gray-800 border border-white/15 text-white flex items-center justify-center shadow-xl backdrop-blur-xl transition-all cursor-pointer hover:border-geoCyan/60"
             title="Reset View"
           >
             <RotateCcw className="w-4 h-4 text-geoYellow" />
@@ -519,7 +529,7 @@ export default function GlobeExplorer() {
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            className="absolute bottom-16 left-1/2 -translate-x-1/2 z-30 w-[92%] max-w-[310px] bg-[#080d1a]/95 text-white rounded-2xl p-3.5 border border-white/15 backdrop-blur-2xl shadow-2xl space-y-2.5"
+            className="absolute bottom-14 sm:bottom-16 left-1/2 -translate-x-1/2 z-30 w-[92%] max-w-[310px] bg-[#080d1a]/95 text-white rounded-2xl p-3.5 border border-white/15 backdrop-blur-2xl shadow-2xl space-y-2.5"
           >
             {/* Top Row: Flag (Increased size with hover zoom) + Close Button */}
             <div className="flex items-center justify-between gap-2">
@@ -538,7 +548,7 @@ export default function GlobeExplorer() {
               <button
                 onClick={() => {
                   setSelectedCountry(null);
-                  targetScaleRef.current = 280;
+                  targetScaleRef.current = getResponsiveDefaultScale();
                 }}
                 className="text-gray-400 hover:text-white transition-colors p-1 cursor-pointer"
               >
