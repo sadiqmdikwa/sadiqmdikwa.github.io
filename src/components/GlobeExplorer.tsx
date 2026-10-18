@@ -3,16 +3,21 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import * as d3 from "d3-geo";
 import * as topojson from "topojson-client";
-import { X, Globe as GlobeIcon, Search, ZoomIn, ZoomOut, RotateCcw, Trophy, ArrowLeft, MapPin, ExternalLink } from "lucide-react";
+import {
+  X, Globe as GlobeIcon, Search, ZoomIn, ZoomOut, RotateCcw, Trophy,
+  ArrowLeft, MapPin, ExternalLink, Maximize2, Minimize2, Sun, Moon
+} from "lucide-react";
 import AdBanner from "./AdBanner";
 import { CountryData, COUNTRY_DATABASE, loadLiveGlobeCountries } from "../data/globeDataSource";
 
-const COUNTRY_COLORS = ["#388e3c", "#fbc02d", "#d32f2f", "#1976d2", "#7b1fa2", "#e65100", "#00796b", "#0288d1", "#c2185b", "#512da8"];
+const DARK_COUNTRY_COLORS = ["#388e3c", "#fbc02d", "#d32f2f", "#1976d2", "#7b1fa2", "#e65100", "#00796b", "#0288d1", "#c2185b", "#512da8"];
+const LIGHT_COUNTRY_COLORS = ["#81c784", "#fff176", "#e57373", "#64b5f6", "#ba68c8", "#ffb74d", "#4db6ac", "#4fc3f7", "#f06292", "#9575cd"];
 
-function getCountryColor(name: string): string {
-  if (!name) return "#388e3c";
+function getCountryColor(name: string, theme: "dark" | "light"): string {
+  if (!name) return theme === "dark" ? "#388e3c" : "#81c784";
   const hash = name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return COUNTRY_COLORS[hash % COUNTRY_COLORS.length];
+  const palette = theme === "dark" ? DARK_COUNTRY_COLORS : LIGHT_COUNTRY_COLORS;
+  return palette[hash % palette.length];
 }
 
 const getResponsiveDefaultScale = () => {
@@ -32,6 +37,10 @@ export default function GlobeExplorer() {
   const [worldGeoJson, setWorldGeoJson] = useState<any | null>(null);
   const [isAutoSpinning, setIsAutoSpinning] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Expand (Fullscreen Mode) & Theme Mode States
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const [globeTheme, setGlobeTheme] = useState<"dark" | "light">("dark");
 
   // Live Autocomplete Search State
   const [searchInput, setSearchInput] = useState("");
@@ -69,7 +78,7 @@ export default function GlobeExplorer() {
       .catch(err => console.warn("Failed to load live globe countries:", err));
   }, []);
 
-  // Native non-passive wheel event listener allowing DEEP VECTOR ZOOM
+  // Native non-passive wheel event listener
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -91,7 +100,7 @@ export default function GlobeExplorer() {
     };
   }, []);
 
-  // Main Render Loop
+  // Main Render Loop (Handles Expanded Shift & Dark/Light Themes)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -126,9 +135,13 @@ export default function GlobeExplorer() {
       rotationRef.current[0] += dLng * 0.08;
       rotationRef.current[1] += dLat * 0.08;
 
+      // Projection Center: When Expanded, offset globe slightly left (38% X) to leave room for right side panel!
+      const centerX = isExpanded && window.innerWidth >= 1024 ? width * 0.38 : width / 2;
+      const centerY = height / 2;
+
       const projection = d3.geoOrthographic()
         .scale(scaleRef.current)
-        .translate([width / 2, height / 2])
+        .translate([centerX, centerY])
         .rotate(rotationRef.current)
         .clipAngle(90);
 
@@ -138,17 +151,17 @@ export default function GlobeExplorer() {
       // 1. Ocean Base Sphere
       ctx.beginPath();
       path({ type: "Sphere" });
-      ctx.fillStyle = "#081420";
+      ctx.fillStyle = globeTheme === "dark" ? "#081420" : "#e0f2fe";
       ctx.fill();
       ctx.lineWidth = 1.5;
-      ctx.strokeStyle = "rgba(66, 194, 203, 0.4)";
+      ctx.strokeStyle = globeTheme === "dark" ? "rgba(66, 194, 203, 0.4)" : "rgba(2, 132, 199, 0.4)";
       ctx.stroke();
 
       // 2. Graticule Lines
       ctx.beginPath();
       path(graticule);
       ctx.lineWidth = 0.5;
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+      ctx.strokeStyle = globeTheme === "dark" ? "rgba(255, 255, 255, 0.08)" : "rgba(15, 23, 42, 0.08)";
       ctx.stroke();
 
       // 3. Country Polygons
@@ -161,11 +174,11 @@ export default function GlobeExplorer() {
           ctx.beginPath();
           path(feature);
 
-          ctx.fillStyle = isSelected ? "#F4D03F" : isHovered ? "rgba(66, 194, 203, 0.8)" : getCountryColor(countryName);
+          ctx.fillStyle = isSelected ? "#F4D03F" : isHovered ? (globeTheme === "dark" ? "rgba(66, 194, 203, 0.8)" : "rgba(14, 165, 233, 0.8)") : getCountryColor(countryName, globeTheme);
           ctx.fill();
 
           ctx.lineWidth = isSelected || isHovered ? 1.8 : 0.4;
-          ctx.strokeStyle = isSelected || isHovered ? "#ffffff" : "rgba(10, 20, 30, 0.6)";
+          ctx.strokeStyle = isSelected || isHovered ? "#ffffff" : globeTheme === "dark" ? "rgba(10, 20, 30, 0.6)" : "rgba(255, 255, 255, 0.8)";
           ctx.stroke();
         });
       }
@@ -184,9 +197,9 @@ export default function GlobeExplorer() {
       window.removeEventListener("resize", updateSize);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [worldGeoJson, selectedCountry, hoveredCountryName, isAutoSpinning]);
+  }, [worldGeoJson, selectedCountry, hoveredCountryName, isAutoSpinning, isExpanded, globeTheme]);
 
-  // Mouse Controls
+  // Scale-Aware Drag Control (Fixes Zoom Drag Speed Jumping!)
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsAutoSpinning(false);
     isDraggingRef.current = true;
@@ -204,8 +217,10 @@ export default function GlobeExplorer() {
         hasDraggedRef.current = true;
       }
 
-      targetRotationRef.current[0] += dx * 0.4;
-      targetRotationRef.current[1] -= dy * 0.4;
+      // Drag sensitivity scales inversely with scaleRef.current so dragging when zoomed in stays 1:1 smooth!
+      const dragSensitivity = Math.max(0.05, 110 / scaleRef.current);
+      targetRotationRef.current[0] += dx * dragSensitivity;
+      targetRotationRef.current[1] -= dy * dragSensitivity;
       rotationRef.current[0] = targetRotationRef.current[0];
       rotationRef.current[1] = targetRotationRef.current[1];
 
@@ -217,9 +232,13 @@ export default function GlobeExplorer() {
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
+      const width = canvasRef.current.width;
+      const height = canvasRef.current.height;
+      const centerX = isExpanded && window.innerWidth >= 1024 ? width * 0.38 : width / 2;
+
       const projection = d3.geoOrthographic()
         .scale(scaleRef.current)
-        .translate([canvasRef.current.width / 2, canvasRef.current.height / 2])
+        .translate([centerX, height / 2])
         .rotate(rotationRef.current);
 
       const coords = projection.invert?.([x, y]);
@@ -238,7 +257,7 @@ export default function GlobeExplorer() {
     isDraggingRef.current = false;
   };
 
-  // Mobile Touch Controls (Single Finger Drag + Two-Finger Pinch-To-Zoom)
+  // Mobile Touch Controls
   const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
     setIsAutoSpinning(false);
     if (e.touches.length === 1) {
@@ -265,8 +284,9 @@ export default function GlobeExplorer() {
         hasDraggedRef.current = true;
       }
 
-      targetRotationRef.current[0] += dx * 0.4;
-      targetRotationRef.current[1] -= dy * 0.4;
+      const dragSensitivity = Math.max(0.05, 110 / scaleRef.current);
+      targetRotationRef.current[0] += dx * dragSensitivity;
+      targetRotationRef.current[1] -= dy * dragSensitivity;
       rotationRef.current[0] = targetRotationRef.current[0];
       rotationRef.current[1] = targetRotationRef.current[1];
 
@@ -302,9 +322,13 @@ export default function GlobeExplorer() {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
+    const width = canvas.width;
+    const height = canvas.height;
+    const centerX = isExpanded && window.innerWidth >= 1024 ? width * 0.38 : width / 2;
+
     const projection = d3.geoOrthographic()
       .scale(scaleRef.current)
-      .translate([canvas.width / 2, canvas.height / 2])
+      .translate([centerX, height / 2])
       .rotate(rotationRef.current);
 
     const coords = projection.invert?.([x, y]);
@@ -366,43 +390,52 @@ export default function GlobeExplorer() {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
-      className="w-full pb-20 font-sans text-white"
+      className={`w-full font-sans transition-colors duration-300 ${
+        isExpanded ? "fixed inset-0 z-[9999] bg-[#030712] p-4 flex flex-col h-screen" : "pb-20 text-white"
+      }`}
     >
-      {/* Top Navigation Row */}
-      <div className="flex items-center gap-3 mb-4">
-        <button
-          onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 bg-gray-900/40 hover:bg-gray-900/80 text-gray-300 hover:text-white px-4 py-2 rounded-full border border-white/10 transition-all text-xs font-semibold backdrop-blur-xl hover:border-geoCyan/40 active:scale-95 shadow-sm group cursor-pointer"
-        >
-          <ArrowLeft className="w-4 h-4 text-geoCyan group-hover:-translate-x-0.5 transition-transform" />
-          <span>Back</span>
-        </button>
-      </div>
+      {/* Top Navigation Row (Hidden when expanded) */}
+      {!isExpanded && (
+        <div className="flex items-center gap-3 mb-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-2 bg-gray-900/40 hover:bg-gray-900/80 text-gray-300 hover:text-white px-4 py-2 rounded-full border border-white/10 transition-all text-xs font-semibold backdrop-blur-xl hover:border-geoCyan/40 active:scale-95 shadow-sm group cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4 text-geoCyan group-hover:-translate-x-0.5 transition-transform" />
+            <span>Back</span>
+          </button>
+        </div>
+      )}
 
-      {/* Minimalist Page Header */}
-      <header className="mb-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-        <div className="lg:col-span-7 text-center lg:text-left">
-          <div className="inline-flex items-center gap-2 text-geoCyan font-semibold uppercase tracking-wider text-xs mb-2 bg-geoCyan/10 px-3 py-1 rounded-full border border-geoCyan/20">
-            <GlobeIcon className="w-3.5 h-3.5" />
-            Cartographic Atlas
+      {/* Minimalist Page Header (Hidden when expanded) */}
+      {!isExpanded && (
+        <header className="mb-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <div className="lg:col-span-7 text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 text-geoCyan font-semibold uppercase tracking-wider text-xs mb-2 bg-geoCyan/10 px-3 py-1 rounded-full border border-geoCyan/20">
+              <GlobeIcon className="w-3.5 h-3.5" />
+              Cartographic Atlas
+            </div>
+            <h1 className="text-3xl md:text-5xl text-white font-extrabold tracking-tight mb-2">
+              3D Vector Globe Atlas
+            </h1>
+            <p className="text-gray-400 text-sm md:text-base leading-relaxed">
+              Hover to highlight country borders, click to fill with color and smoothly zoom in. Mobile pinch-to-zoom supported.
+            </p>
           </div>
-          <h1 className="text-3xl md:text-5xl text-white font-extrabold tracking-tight mb-2">
-            3D Vector Globe Atlas
-          </h1>
-          <p className="text-gray-400 text-sm md:text-base leading-relaxed">
-            Hover to highlight country borders, click to fill with color and smoothly zoom in. Mobile pinch-to-zoom supported.
-          </p>
-        </div>
-        <div className="lg:col-span-5">
-          <AdBanner slotId="globe-explorer-header-slot" className="my-0" />
-        </div>
-      </header>
+          <div className="lg:col-span-5">
+            <AdBanner slotId="globe-explorer-header-slot" className="my-0" />
+          </div>
+        </header>
+      )}
 
-      {/* Map Card Shell */}
-      <div className="relative rounded-[2rem] sm:rounded-[2.5rem] border border-white/10 bg-gray-900/50 shadow-2xl backdrop-blur-xl overflow-hidden p-0 h-[550px] sm:h-[650px] md:h-[720px] flex items-center justify-center">
-        {/* Top Floating Search & Quiz Bar */}
+      {/* Map Card Shell Container */}
+      <div className={`relative rounded-[2rem] sm:rounded-[2.5rem] border border-white/10 overflow-hidden p-0 flex items-center justify-center transition-all ${
+        isExpanded ? "w-full h-full flex-grow bg-[#030712]" : "bg-gray-900/50 shadow-2xl backdrop-blur-xl h-[550px] sm:h-[650px] md:h-[720px]"
+      } ${globeTheme === "light" ? "bg-slate-950/80 border-slate-700/50" : ""}`}>
+
+        {/* Top Floating Controls Bar */}
         <div className="absolute top-4 sm:top-5 left-4 sm:left-5 right-4 sm:right-5 z-30 flex items-center justify-between gap-3 pointer-events-none">
-          {/* Live Typing Autocomplete Search Input (Press Enter to Search & Zoom!) */}
+          {/* Live Typing Autocomplete Search Input */}
           <div className="relative pointer-events-auto hidden md:block w-64">
             <div className="flex items-center gap-2 bg-gray-900/90 border border-white/15 rounded-full px-3.5 py-2 backdrop-blur-xl shadow-2xl focus-within:border-geoCyan/60">
               <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
@@ -463,18 +496,45 @@ export default function GlobeExplorer() {
             )}
           </div>
 
-          <div className="pointer-events-auto ml-auto">
+          {/* Right Top Action Controls (Theme Switcher, Expand/Contract, Quiz Button) */}
+          <div className="pointer-events-auto ml-auto flex items-center gap-2">
+            {/* Theme Switcher Toggle (Dark vs Light Cartography) */}
+            <button
+              onClick={() => setGlobeTheme(globeTheme === "dark" ? "light" : "dark")}
+              className="w-10 h-10 rounded-full bg-gray-900/80 hover:bg-gray-800 border border-white/15 text-white flex items-center justify-center shadow-xl backdrop-blur-xl transition-all cursor-pointer hover:border-geoCyan/60"
+              title={globeTheme === "dark" ? "Switch to Light Cartography Mode" : "Switch to Dark Mode"}
+            >
+              {globeTheme === "dark" ? (
+                <Sun className="w-4 h-4 text-geoYellow" />
+              ) : (
+                <Moon className="w-4 h-4 text-geoCyan" />
+              )}
+            </button>
+
+            {/* Expand / Contract Toggle */}
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="w-10 h-10 rounded-full bg-gray-900/80 hover:bg-gray-800 border border-white/15 text-white flex items-center justify-center shadow-xl backdrop-blur-xl transition-all cursor-pointer hover:border-geoCyan/60"
+              title={isExpanded ? "Contract View" : "Expand Fullscreen"}
+            >
+              {isExpanded ? (
+                <Minimize2 className="w-4 h-4 text-geoCyan" />
+              ) : (
+                <Maximize2 className="w-4 h-4 text-geoCyan" />
+              )}
+            </button>
+
             <button
               onClick={() => navigate("/game")}
-              className="inline-flex items-center gap-2 bg-geoYellow hover:bg-geoCyan text-gray-950 px-4 sm:px-5 py-2 rounded-full border border-geoYellow/40 transition-all text-xs font-black uppercase tracking-wider shadow-lg cursor-pointer"
+              className="inline-flex items-center gap-2 bg-geoYellow hover:bg-geoCyan text-gray-950 px-4 sm:px-5 py-2.5 rounded-full border border-geoYellow/40 transition-all text-xs font-black uppercase tracking-wider shadow-lg cursor-pointer shrink-0"
             >
               <Trophy className="w-4 h-4" />
-              <span>Start Quiz</span>
+              <span className="hidden sm:inline">Start Quiz</span>
             </button>
           </div>
         </div>
 
-        {/* 2D/3D Canvas Vector Globe with Mouse and Mobile Pinch-To-Zoom Touch Event Handlers */}
+        {/* 2D/3D Canvas Vector Globe */}
         <canvas
           ref={canvasRef}
           onMouseDown={handleMouseDown}
@@ -496,7 +556,7 @@ export default function GlobeExplorer() {
 
         {/* Control Overlay Instructions */}
         <div className="absolute bottom-4 sm:bottom-5 left-4 sm:left-5 z-30 flex items-center gap-2 text-[10px] sm:text-[11px] font-mono text-gray-400 bg-black/60 px-3.5 sm:px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-md pointer-events-none">
-          <span className="text-geoCyan font-bold">pinch/scroll</span> zoom • <span className="text-geoCyan font-bold">drag</span> rotate
+          <span className="text-geoCyan font-bold">click</span> select • <span className="text-geoCyan font-bold">drag</span> rotate • <span className="text-geoCyan font-bold">pinch/scroll</span> zoom
         </div>
 
         {/* Bottom Left Floating Zoom Buttons */}
@@ -524,17 +584,21 @@ export default function GlobeExplorer() {
           </button>
         </div>
 
-        {/* Compact Refined Popup Card Above Map */}
+        {/* Selected Country Display: Center Popup in Normal Mode vs Dedicated Right Side Panel in Expanded Mode! */}
         {selectedCountry && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            className="absolute bottom-14 sm:bottom-16 left-1/2 -translate-x-1/2 z-30 w-[92%] max-w-[310px] bg-[#080d1a]/95 text-white rounded-2xl p-3.5 border border-white/15 backdrop-blur-2xl shadow-2xl space-y-2.5"
+            initial={{ opacity: 0, x: isExpanded ? 40 : 0, y: isExpanded ? 0 : 10, scale: 0.95 }}
+            animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+            className={`z-30 bg-[#080d1a]/95 text-white border border-white/15 backdrop-blur-2xl shadow-2xl ${
+              isExpanded && window.innerWidth >= 1024
+                ? "absolute top-20 right-6 bottom-20 w-96 rounded-3xl p-6 flex flex-col justify-between overflow-y-auto video-preview-scroll space-y-4"
+                : "absolute bottom-14 sm:bottom-16 left-1/2 -translate-x-1/2 w-[92%] max-w-[310px] rounded-2xl p-3.5 space-y-2.5"
+            }`}
           >
-            {/* Top Row: Flag (Increased size with hover zoom) + Close Button */}
+            {/* Top Row: Flag + Close Button */}
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <div className="w-11 h-7 rounded-md overflow-hidden shadow-md border border-white/20 hover:scale-110 transition-transform duration-300">
+                <div className="w-12 h-7 rounded-md overflow-hidden shadow-md border border-white/20 hover:scale-110 transition-transform duration-300">
                   <img
                     src={`https://flagcdn.com/w160/${selectedCountry.code.toLowerCase()}.png`}
                     alt={selectedCountry.name}
@@ -542,7 +606,7 @@ export default function GlobeExplorer() {
                     referrerPolicy="no-referrer"
                   />
                 </div>
-                <span className="text-[10px] font-mono font-bold text-geoCyan uppercase tracking-widest">{selectedCountry.code}</span>
+                <span className="text-xs font-mono font-bold text-geoCyan uppercase tracking-widest">{selectedCountry.code}</span>
               </div>
 
               <button
@@ -552,26 +616,26 @@ export default function GlobeExplorer() {
                 }}
                 className="text-gray-400 hover:text-white transition-colors p-1 cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Title & Date */}
             <div>
               <div className="flex items-baseline justify-between gap-2">
-                <h3 className="text-lg font-black text-white tracking-tight leading-tight truncate">
+                <h3 className="text-xl font-black text-white tracking-tight leading-tight">
                   {selectedCountry.name}
                 </h3>
                 <span className="text-[10px] text-gray-400 font-mono font-medium shrink-0">(as of 2026)</span>
               </div>
             </div>
 
-            {/* Table: Capital, Population, Continent ONLY, Area, Languages */}
-            <div className="space-y-1 text-xs border-y border-white/10 py-2">
+            {/* Table: Capital, Population, Continent, Area, Languages */}
+            <div className="space-y-2 text-xs border-y border-white/10 py-3">
               {selectedCountry.capital && (
                 <div className="flex justify-between items-center text-gray-300">
                   <span className="text-gray-400 font-semibold text-[10px] uppercase">Capital</span>
-                  <span className="font-bold text-white text-[11px] truncate max-w-[140px] text-right">{selectedCountry.capital}</span>
+                  <span className="font-bold text-white text-[11px] truncate max-w-[160px] text-right">{selectedCountry.capital}</span>
                 </div>
               )}
               {selectedCountry.population && (
@@ -591,19 +655,29 @@ export default function GlobeExplorer() {
               {selectedCountry.languages && (
                 <div className="flex justify-between items-center text-gray-300">
                   <span className="text-gray-400 font-semibold text-[10px] uppercase">Language(s)</span>
-                  <span className="font-bold text-white text-[11px] truncate max-w-[140px] text-right">{selectedCountry.languages}</span>
+                  <span className="font-bold text-white text-[11px] truncate max-w-[160px] text-right">{selectedCountry.languages}</span>
                 </div>
               )}
             </div>
 
+            {/* In Expanded Mode: Show Description directly inside the right side panel! */}
+            {isExpanded && window.innerWidth >= 1024 && selectedCountry.desc && (
+              <div className="space-y-1.5 pt-1">
+                <span className="text-[10px] font-bold text-geoCyan uppercase tracking-wider block">Geographic Overview</span>
+                <p className="text-xs text-gray-300 leading-relaxed font-normal bg-black/30 p-3 rounded-xl border border-white/5 max-h-36 overflow-y-auto video-preview-scroll">
+                  {selectedCountry.desc}
+                </p>
+              </div>
+            )}
+
             {/* Footer Row: Coordinates + Read More */}
-            <div className="pt-0.5 flex items-center justify-between text-xs">
+            <div className="pt-1 flex items-center justify-between text-xs">
               <span className="font-mono text-[10px] text-gray-400">
                 📍 {selectedCountry.lat.toFixed(2)}°, {selectedCountry.lng.toFixed(2)}°
               </span>
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="text-geoCyan hover:text-geoYellow font-extrabold uppercase tracking-wider text-[11px] transition-colors flex items-center gap-1 cursor-pointer"
+                className="bg-geoCyan hover:bg-geoYellow text-gray-950 font-extrabold px-4 py-2 rounded-full uppercase tracking-wider text-[11px] transition-all flex items-center gap-1 cursor-pointer shadow-md"
               >
                 <span>Read More</span>
                 <span>➔</span>
@@ -613,7 +687,7 @@ export default function GlobeExplorer() {
         )}
       </div>
 
-      {/* Video Preview Modal Style Detail Modal with Circular Stamp from Screenshot 2 */}
+      {/* Video Preview Modal Style Detail Modal with Circular Stamp */}
       <AnimatePresence>
         {isModalOpen && selectedCountry && (
           <div
