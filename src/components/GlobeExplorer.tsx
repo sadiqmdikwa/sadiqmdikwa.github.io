@@ -38,6 +38,7 @@ export default function GlobeExplorer() {
   const hasDraggedRef = useRef<boolean>(false);
   const lastMouseRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const startMouseRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const touchStartDistRef = useRef<number | null>(null);
 
   const filteredCountryNames = Object.keys(countriesMap).filter(name =>
     name.toLowerCase().includes(searchInput.toLowerCase().trim())
@@ -178,25 +179,21 @@ export default function GlobeExplorer() {
     };
   }, [worldGeoJson, selectedCountry, hoveredCountryName, isAutoSpinning]);
 
-  const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
+  // Mouse Mouse Controls
+  const handleMouseDown = (e: React.MouseEvent) => {
     setIsAutoSpinning(false);
     isDraggingRef.current = true;
     hasDraggedRef.current = false;
-    const clientX = "touches" in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
-    const clientY = "touches" in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
-    lastMouseRef.current = { x: clientX, y: clientY };
-    startMouseRef.current = { x: clientX, y: clientY };
+    lastMouseRef.current = { x: e.clientX, y: e.clientY };
+    startMouseRef.current = { x: e.clientX, y: e.clientY };
   };
 
-  const handleMouseMove = (e: React.MouseEvent | React.TouchEvent) => {
-    const clientX = "touches" in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
-    const clientY = "touches" in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
-
+  const handleMouseMove = (e: React.MouseEvent) => {
     if (isDraggingRef.current) {
-      const dx = clientX - lastMouseRef.current.x;
-      const dy = clientY - lastMouseRef.current.y;
+      const dx = e.clientX - lastMouseRef.current.x;
+      const dy = e.clientY - lastMouseRef.current.y;
 
-      if (Math.abs(clientX - startMouseRef.current.x) > 5 || Math.abs(clientY - startMouseRef.current.y) > 5) {
+      if (Math.abs(e.clientX - startMouseRef.current.x) > 5 || Math.abs(e.clientY - startMouseRef.current.y) > 5) {
         hasDraggedRef.current = true;
       }
 
@@ -205,13 +202,13 @@ export default function GlobeExplorer() {
       rotationRef.current[0] = targetRotationRef.current[0];
       rotationRef.current[1] = targetRotationRef.current[1];
 
-      lastMouseRef.current = { x: clientX, y: clientY };
+      lastMouseRef.current = { x: e.clientX, y: e.clientY };
     }
 
     if (canvasRef.current && worldGeoJson) {
       const rect = canvasRef.current.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
 
       const projection = d3.geoOrthographic()
         .scale(scaleRef.current)
@@ -232,6 +229,55 @@ export default function GlobeExplorer() {
 
   const handleMouseUp = () => {
     isDraggingRef.current = false;
+  };
+
+  // Mobile Touch Controls (Single Finger Drag + Two-Finger Pinch-To-Zoom)
+  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    setIsAutoSpinning(false);
+    if (e.touches.length === 1) {
+      isDraggingRef.current = true;
+      hasDraggedRef.current = false;
+      const touch = e.touches[0];
+      lastMouseRef.current = { x: touch.clientX, y: touch.clientY };
+      startMouseRef.current = { x: touch.clientX, y: touch.clientY };
+    } else if (e.touches.length === 2) {
+      isDraggingRef.current = false;
+      const t1 = e.touches[0];
+      const t2 = e.touches[1];
+      touchStartDistRef.current = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length === 1 && isDraggingRef.current) {
+      const touch = e.touches[0];
+      const dx = touch.clientX - lastMouseRef.current.x;
+      const dy = touch.clientY - lastMouseRef.current.y;
+
+      if (Math.abs(touch.clientX - startMouseRef.current.x) > 5 || Math.abs(touch.clientY - startMouseRef.current.y) > 5) {
+        hasDraggedRef.current = true;
+      }
+
+      targetRotationRef.current[0] += dx * 0.4;
+      targetRotationRef.current[1] -= dy * 0.4;
+      rotationRef.current[0] = targetRotationRef.current[0];
+      rotationRef.current[1] = targetRotationRef.current[1];
+
+      lastMouseRef.current = { x: touch.clientX, y: touch.clientY };
+    } else if (e.touches.length === 2 && touchStartDistRef.current !== null) {
+      const t1 = e.touches[0];
+      const t2 = e.touches[1];
+      const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+      const diff = dist - touchStartDistRef.current;
+
+      targetScaleRef.current = Math.min(1400, Math.max(140, targetScaleRef.current + diff * 1.5));
+      touchStartDistRef.current = dist;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    isDraggingRef.current = false;
+    touchStartDistRef.current = null;
   };
 
   const handleCanvasClick = (e: React.MouseEvent) => {
@@ -334,7 +380,7 @@ export default function GlobeExplorer() {
             3D Vector Globe Atlas
           </h1>
           <p className="text-gray-400 text-sm md:text-base leading-relaxed">
-            Hover to highlight country borders, click to fill with color and smoothly zoom in. Data updates live from spreadsheet.
+            Hover to highlight country borders, click to fill with color and smoothly zoom in. Mobile pinch-to-zoom supported.
           </p>
         </div>
         <div className="lg:col-span-5">
@@ -418,16 +464,16 @@ export default function GlobeExplorer() {
           </div>
         </div>
 
-        {/* 2D/3D Canvas Vector Globe */}
+        {/* 2D/3D Canvas Vector Globe with Mouse and Mobile Pinch-To-Zoom Touch Event Handlers */}
         <canvas
           ref={canvasRef}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
-          onTouchStart={handleMouseDown}
-          onTouchMove={handleMouseMove}
-          onTouchEnd={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
           onClick={handleCanvasClick}
           style={{
             width: "100%",
@@ -440,7 +486,7 @@ export default function GlobeExplorer() {
 
         {/* Control Overlay Instructions */}
         <div className="absolute bottom-5 left-5 z-30 flex items-center gap-2 text-[11px] font-mono text-gray-400 bg-black/60 px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-md pointer-events-none">
-          <span className="text-geoCyan font-bold">hover</span> highlight • <span className="text-geoCyan font-bold">click</span> select & fill • <span className="text-geoCyan font-bold">drag</span> rotate
+          <span className="text-geoCyan font-bold">pinch/scroll</span> zoom • <span className="text-geoCyan font-bold">drag</span> rotate
         </div>
 
         {/* Bottom Left Floating Zoom Buttons */}
