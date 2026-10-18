@@ -5,39 +5,277 @@ import { loadGameQuestions, type GameQuestion } from "../data/gameDataSource";
 import { 
   Trophy, RefreshCw, ArrowRight, ArrowLeft, CheckCircle2, 
   XCircle, MapPin, Compass, Flag, Globe, Layers, AlertCircle, X,
-  Volume2, VolumeX, Sparkles, Flame, Clock, Play, Award, HelpCircle
+  Volume2, VolumeX 
 } from "lucide-react";
 import AdBanner from "./AdBanner";
 
-// Built-in master question bank
+// Built-in verified question master bank covering all categories & regions
 const DEFAULT_QUESTIONS: GameQuestion[] = [
-  // Africa
-  { id: "def_1", title: "Unclaimed Desert Territory", name: "Bir Tawil", lat: 21.8706, lng: 33.7342, category: "Anomalies", region: "Africa", countryCode: "eg", clue: "Unclaimed trapezoid of desert between Egypt and Sudan.", fact: "Bir Tawil is one of the few unclaimed terra nullius territories on Earth." },
-  { id: "def_2", title: "East African Disputed Border Triangle", name: "Ilemi Triangle", lat: 4.9000, lng: 35.3000, category: "Borders", region: "Africa", countryCode: "ke", clue: "Disputed border territory in East Africa claimed by South Sudan and Kenya.", fact: "The dispute dates back to 1902 colonial boundary agreements." },
-  { id: "def_3", title: "Landlocked Enclave Kingdom", name: "Lesotho", lat: -29.6100, lng: 28.2336, category: "Borders", region: "Africa", countryCode: "ls", clue: "High-altitude mountainous kingdom completely surrounded by South Africa.", fact: "Lesotho lies entirely above 1,000 meters in elevation." },
-  { id: "def_4", title: "Spanish Enclave in North Africa", name: "Ceuta", lat: 35.8894, lng: -5.3213, category: "Anomalies", region: "Africa", countryCode: "es", clue: "Spanish autonomous city sharing a land border with Morocco.", fact: "Ceuta and Melilla form the only EU land borders in Africa." },
-  { id: "def_5", title: "Strategic Horn of Africa Nation", name: "Djibouti", lat: 11.8251, lng: 42.5903, category: "Mixed Global", region: "Africa", countryCode: "dj", clue: "Coastal Horn of Africa nation on the Bab-el-Mandeb strait.", fact: "Lake Assal in Djibouti is the lowest point in Africa (-155m)." },
-  { id: "def_6", title: "Pyramids of the Black Pharaohs", name: "Sudan", lat: 15.5007, lng: 32.5599, category: "Countries", region: "Africa", countryCode: "sd", clue: "Northeast African country home to more ancient pyramids than Egypt.", fact: "Sudan contains over 220 Nubian pyramids at Meroë." },
-  { id: "def_7", title: "World's Leading Cocoa Producer", name: "Ivory Coast", lat: 7.5400, lng: -5.5471, category: "Countries", region: "Africa", countryCode: "ci", clue: "West African nation renowned for producing 40% of global cocoa.", fact: "Its official French name is Côte d'Ivoire." },
+  // Anomalies / Borders - Africa
+  {
+    id: "def_1",
+    title: "Unclaimed Desert Territory",
+    name: "Bir Tawil",
+    lat: 21.8706,
+    lng: 33.7342,
+    category: "Anomalies",
+    region: "Africa",
+    clue: "A 2,060 km² trapezoid of desert between Egypt and Sudan that neither country claims due to conflicting 1899 and 1902 border maps.",
+    fact: "Bir Tawil is one of the only habitable continental territories on Earth that is terra nullius (unclaimed by any recognized state)."
+  },
+  {
+    id: "def_2",
+    title: "East African Disputed Border Triangle",
+    name: "Ilemi Triangle",
+    lat: 4.9000,
+    lng: 35.3000,
+    category: "Borders",
+    region: "Africa",
+    clue: "A disputed border territory in East Africa claimed by South Sudan and Kenya, originating from conflicting colonial treaties.",
+    fact: "The dispute dates back to 1902 and remains one of Africa's most intricate territorial frontiers."
+  },
+  {
+    id: "def_3",
+    title: "Landlocked Enclave Kingdom",
+    name: "Lesotho",
+    lat: -29.6100,
+    lng: 28.2336,
+    category: "Borders",
+    region: "Africa",
+    countryCode: "ls",
+    clue: "A high-altitude, mountainous kingdom completely surrounded by South Africa.",
+    fact: "Lesotho is the only independent country in the world that lies entirely above 1,000 metres (3,281 ft) in elevation."
+  },
+  {
+    id: "def_4",
+    title: "Spanish Enclave in North Africa",
+    name: "Ceuta",
+    lat: 35.8894,
+    lng: -5.3213,
+    category: "Anomalies",
+    region: "Africa",
+    clue: "A Spanish autonomous city located on the north coast of Africa sharing a land border with Morocco.",
+    fact: "Along with Melilla, Ceuta forms the only land border between the European Union and an African country."
+  },
+  {
+    id: "def_5",
+    title: "Strategic Horn of Africa Gateway",
+    name: "Djibouti",
+    lat: 11.8251,
+    lng: 42.5903,
+    category: "Mixed Global",
+    region: "Africa",
+    countryCode: "dj",
+    clue: "A small coastal country in the Horn of Africa bordering the Bab-el-Mandeb strait that hosts numerous military bases.",
+    fact: "Lake Assal in Djibouti is the lowest point on the entire African continent (-155m below sea level)."
+  },
 
-  // Europe
-  { id: "def_8", title: "Enclave Maze in the Low Countries", name: "Baarle-Hertog", lat: 51.4428, lng: 4.9317, category: "Anomalies", region: "Europe", countryCode: "be", clue: "Belgian enclave inside the Netherlands cutting through houses and cafes.", fact: "Consists of 22 Belgian enclaves inside Dutch territory." },
-  { id: "def_9", title: "Pyrenees Co-Principality", name: "Andorra", lat: 42.5063, lng: 1.5218, category: "Borders", region: "Europe", countryCode: "ad", clue: "Sovereign principality in the Pyrenees between France and Spain.", fact: "Andorra is the only country with Catalan as its sole official language." },
-  { id: "def_10", title: "Double-Landlocked Alpine Nation", name: "Liechtenstein", lat: 47.1660, lng: 9.5554, category: "Countries", region: "Europe", countryCode: "li", clue: "Alpine country bordered solely by landlocked Switzerland and Austria.", fact: "One of only two doubly landlocked countries in the world." },
-  { id: "def_11", title: "Floating Venice Lagoon City", name: "Italy", lat: 41.8719, lng: 12.5674, category: "Capitals", region: "Europe", countryCode: "it", clue: "Boot-shaped Mediterranean nation with capital Rome.", fact: "Italy entirely surrounds two sovereign enclaves: Vatican City and San Marino." },
+  // Europe - Borders & Anomalies
+  {
+    id: "def_6",
+    title: "Enclave Maze in the Low Countries",
+    name: "Baarle-Hertog",
+    lat: 51.4428,
+    lng: 4.9317,
+    category: "Anomalies",
+    region: "Europe",
+    countryCode: "be",
+    clue: "A Belgian municipality consisting of 22 separate enclaves inside the Netherlands, cutting through buildings and cafes.",
+    fact: "Because Dutch and Belgian tax laws differed, restaurants located on the border used to move customer tables at closing time!"
+  },
+  {
+    id: "def_7",
+    title: "Pyrenees Co-Principality",
+    name: "Andorra",
+    lat: 42.5063,
+    lng: 1.5218,
+    category: "Borders",
+    region: "Europe",
+    countryCode: "ad",
+    clue: "A tiny sovereign co-principality nestled in the Pyrenees mountains between France and Spain.",
+    fact: "Andorra is the only country in the world where Catalan is the sole official language."
+  },
+  {
+    id: "def_8",
+    title: "Six-Month Sovereignty Swap Island",
+    name: "Pheasant Island",
+    lat: 43.3422,
+    lng: -1.7656,
+    category: "Anomalies",
+    region: "Europe",
+    clue: "An uninhabited river island jointly governed by Spain and France that changes ownership every six months.",
+    fact: "It was established as a condominium by the 1659 Treaty of the Pyrenees, ending the Franco-Spanish War."
+  },
+  {
+    id: "def_9",
+    title: "Italian Enclave inside Switzerland",
+    name: "Campione d'Italia",
+    lat: 45.9686,
+    lng: 8.9708,
+    category: "Anomalies",
+    region: "Europe",
+    clue: "An Italian town completely surrounded by the Swiss Canton of Ticino on Lake Lugano.",
+    fact: "The enclave uses both the Swiss Franc and the Euro and has a unique customs agreement with the EU."
+  },
+  {
+    id: "def_10",
+    title: "Double-Landlocked Alpine Principality",
+    name: "Liechtenstein",
+    lat: 47.1660,
+    lng: 9.5554,
+    category: "Mixed Global",
+    region: "Europe",
+    countryCode: "li",
+    clue: "One of only two doubly landlocked countries in the world, bordered solely by landlocked Switzerland and Austria.",
+    fact: "Liechtenstein is the world's leading manufacturer of artificial false teeth!"
+  },
 
-  // Asia
-  { id: "def_12", title: "Land of the Thunder Dragon", name: "Bhutan", lat: 27.5142, lng: 90.4336, category: "Flags", region: "Asia", countryCode: "bt", clue: "Himalayan kingdom whose flag features a white dragon.", fact: "Bhutan is the world's only carbon-negative nation." },
-  { id: "def_13", title: "Omani Peninsula Exclave", name: "Musandam", lat: 26.0000, lng: 56.3000, category: "Anomalies", region: "Asia", countryCode: "om", clue: "Exclave of Oman separated by the United Arab Emirates.", fact: "Known as the 'Norway of Arabia' for its dramatic fjords." },
-  { id: "def_14", title: "Only Non-Rectangular Flag", name: "Nepal", lat: 28.3949, lng: 84.1240, category: "Flags", region: "Asia", countryCode: "np", clue: "Himalayan nation with a double-pennant non-rectangular flag.", fact: "Home to Mount Everest, the world's highest peak." },
+  // Asia - Borders & Anomalies
+  {
+    id: "def_11",
+    title: "Land of the Thunder Dragon",
+    name: "Bhutan",
+    lat: 27.5142,
+    lng: 90.4336,
+    category: "Flags",
+    region: "Asia",
+    countryCode: "bt",
+    clue: "A Himalayan kingdom whose flag features a white dragon grasping jewels, and which measures progress by Gross National Happiness.",
+    fact: "Bhutan is recognized as the world's only carbon-negative country, absorbing more carbon than it emits."
+  },
+  {
+    id: "def_12",
+    title: "Former Counter-Counter Enclave",
+    name: "Dahala Khagrabari",
+    lat: 26.1500,
+    lng: 88.7500,
+    category: "Anomalies",
+    region: "Asia",
+    clue: "Formerly the world's only third-order enclave: Indian land inside Bangladesh inside India inside Bangladesh.",
+    fact: "The anomaly was successfully resolved in 2015 when India and Bangladesh ratified the Land Boundary Agreement."
+  },
+  {
+    id: "def_13",
+    title: "Omani Peninsula Exclave",
+    name: "Musandam",
+    lat: 26.0000,
+    lng: 56.3000,
+    category: "Borders",
+    region: "Asia",
+    countryCode: "om",
+    clue: "An exclave of Oman separated from the rest of the sultanate by the United Arab Emirates, overlooking the Strait of Hormuz.",
+    fact: "Known as the 'Norway of Arabia' for its rugged, fjord-like drowned river valleys (khors)."
+  },
+  {
+    id: "def_14",
+    title: "The Central Asian Alpine Lake Nation",
+    name: "Kyrgyzstan",
+    lat: 41.2044,
+    lng: 74.7661,
+    category: "Mixed Global",
+    region: "Asia",
+    countryCode: "kg",
+    clue: "A mountainous Central Asian country whose red flag features a yellow sun with 40 rays around a traditional yurt crown (tunduk).",
+    fact: "It is home to Issyk-Kul, the second-largest alpine lake in the world after Lake Titicaca."
+  },
+  {
+    id: "def_15",
+    title: "Only Non-Quadrilateral National Flag",
+    name: "Nepal",
+    lat: 28.3949,
+    lng: 84.1240,
+    category: "Flags",
+    region: "Asia",
+    countryCode: "np",
+    clue: "The only country in the world with a non-rectangular national flag, shaped like two stacked pennants.",
+    fact: "The unique geometry of Nepal's flag is explicitly defined with mathematical precision in their national constitution."
+  },
 
-  // Americas
-  { id: "def_15", title: "US Exclave in Canada", name: "Point Roberts", lat: 48.9883, lng: -123.0800, category: "Anomalies", region: "Americas", countryCode: "us", clue: "American town below 49th parallel reachable by land only via Canada.", fact: "High school students cross international borders twice daily." },
-  { id: "def_16", title: "Tropical Andes & Coffee Realm", name: "Colombia", lat: 4.5709, lng: -74.2973, category: "Countries", region: "Americas", countryCode: "co", clue: "South American country with capital Bogotá.", fact: "Colombia is the second most biodiverse country on Earth." },
+  // Americas - Borders & Anomalies
+  {
+    id: "def_16",
+    title: "The US Exclave in Canada",
+    name: "Point Roberts",
+    lat: 48.9883,
+    lng: -123.0800,
+    category: "Anomalies",
+    region: "Americas",
+    countryCode: "us",
+    clue: "An American town located at the tip of the Tsawwassen peninsula below the 49th parallel, only reachable by land through British Columbia.",
+    fact: "American high school students living in Point Roberts must take a daily bus across the international border twice each way to go to school."
+  },
+  {
+    id: "def_17",
+    title: "South American Dutch-Speaking Haven",
+    name: "Suriname",
+    lat: 3.9193,
+    lng: -56.0278,
+    category: "Mixed Global",
+    region: "Americas",
+    countryCode: "sr",
+    clue: "The smallest sovereign country in South America, where Dutch remains the primary official language.",
+    fact: "Over 90% of Suriname is covered by dense, undisturbed Amazonian rainforest."
+  },
+  {
+    id: "def_18",
+    title: "The Northernmost Boundary Chimney",
+    name: "Northwest Angle",
+    lat: 49.3843,
+    lng: -95.1533,
+    category: "Anomalies",
+    region: "Americas",
+    countryCode: "us",
+    clue: "The only part of the contiguous United States located north of the 49th parallel, caused by an 18th-century mapping misunderstanding.",
+    fact: "The border was defined based on Mitchell's map of 1755, which mistakenly placed the source of the Mississippi River much further northwest."
+  },
+  {
+    id: "def_19",
+    title: "The Caribbean Twin-Nation Island",
+    name: "Saint Martin",
+    lat: 18.0708,
+    lng: -63.0501,
+    category: "Borders",
+    region: "Americas",
+    clue: "The smallest inhabited sea island divided between two sovereign nations: France and the Kingdom of the Netherlands.",
+    fact: "The partition was agreed upon under a tree in the 1648 Treaty of Concordia."
+  },
 
-  // Oceania
-  { id: "def_17", title: "Micro-Island Republic", name: "Nauru", lat: -0.5228, lng: 166.9315, category: "Flags", region: "Oceania", countryCode: "nr", clue: "Smallest independent republic with gold stripe and 12-pointed star flag.", fact: "Nauru has no official capital city." },
-  { id: "def_18", title: "First Nation to Welcome New Day", name: "Kiribati", lat: 1.8709, lng: -157.3631, category: "Anomalies", region: "Oceania", countryCode: "ki", clue: "Pacific island nation that adjusted the Date Line in 1995.", fact: "Millennium Island is the first landmass to welcome the new year." }
+  // Oceania & Global
+  {
+    id: "def_20",
+    title: "The Date-Line Separated Islands",
+    name: "Diomede Islands",
+    lat: 65.7592,
+    lng: -168.9622,
+    category: "Borders",
+    region: "Global",
+    clue: "Two rocky islands in the Bering Strait: Big Diomede (Russia) and Little Diomede (USA), separated by 2.4 miles and 21 hours.",
+    fact: "Big Diomede is nicknamed 'Tomorrow Island' and Little Diomede 'Yesterday Island'."
+  },
+  {
+    id: "def_21",
+    title: "The Micro-Island Republic without a Capital",
+    name: "Nauru",
+    lat: -0.5228,
+    lng: 166.9315,
+    category: "Flags",
+    region: "Oceania",
+    countryCode: "nr",
+    clue: "The world's smallest independent republic, whose flag features a gold stripe over blue with a 12-pointed star below the equator.",
+    fact: "Nauru has no officially designated capital city; government offices are located in the Yaren District."
+  },
+  {
+    id: "def_22",
+    title: "First Nation to Greet the New Day",
+    name: "Kiribati",
+    lat: 1.8709,
+    lng: -157.3631,
+    category: "Anomalies",
+    region: "Oceania",
+    countryCode: "ki",
+    clue: "A Pacific island nation that moved the International Date Line in 1995 so its entire archipelago shares the same calendar day.",
+    fact: "Kiribati's Millennium Island (Caroline Island) is the earliest place on Earth to welcome the new year."
+  }
 ];
 
 function fisherYatesShuffle<T>(array: T[]): T[] {
@@ -49,630 +287,900 @@ function fisherYatesShuffle<T>(array: T[]): T[] {
   return arr;
 }
 
-export default function GeoGame() {
-  const navigate = useNavigate();
+// CRITICAL STOP WORDS & MATCHING HELPER FROM SPECIFICATION
+const STOP_WORDS = [
+  "desert", "river", "mountain", "mountains", "mount", "mt", "lake", "sea", 
+  "ocean", "island", "islands", "republic", "kingdom", "state", "states", 
+  "united", "of", "the", "and", "peninsula", "strait", "canal", "falls", 
+  "valley", "strip", "triangle"
+];
 
-  // Game Engine View State
-  const [viewState, setViewState] = useState<"hub" | "playing" | "summary">("hub");
+function normalizeAnswer(str: string): string {
+  return str
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter(word => word && !STOP_WORDS.includes(word))
+    .join(" ")
+    .trim();
+}
 
-  // Selection Filter State
-  const [activeEngine, setActiveEngine] = useState<"map" | "marathon">("map");
-  const [activeSection, setActiveSection] = useState<"flags" | "countries" | "capitals" | "mixed">("flags");
+function getLevenshteinDistance(a: string, b: string): number {
+  const matrix: number[][] = Array.from({ length: b.length + 1 }, (_, i) => [i]);
+  for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
 
-  // Game Questions State
-  const [allQuestions, setAllQuestions] = useState<GameQuestion[]>(DEFAULT_QUESTIONS);
-  const [currentQuestions, setCurrentQuestions] = useState<GameQuestion[]>([]);
-  const [currentIdx, setCurrentIdx] = useState(0);
-
-  // Active Round Stats
-  const [score, setScore] = useState(0);
-  const [streak, setStreak] = useState(0);
-  const [maxStreak, setMaxStreak] = useState(0);
-  const [correctCount, setCorrectCount] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const [isAnswered, setIsAnswered] = useState(false);
-  const [options, setOptions] = useState<string[]>([]);
-  const [timeLeft, setTimeLeft] = useState(15);
-  const [speechEnabled, setSpeechEnabled] = useState(true);
-
-  const timerRef = useRef<any>(null);
-
-  // Load live questions on mount
-  useEffect(() => {
-    loadGameQuestions()
-      .then(data => {
-        if (data && data.length > 0) {
-          setAllQuestions(data);
-        }
-      })
-      .catch(err => console.warn("Failed to load live trivia sheet:", err));
-  }, []);
-
-  // Web Audio Victory / Defeat Sound
-  const playSound = (type: "correct" | "incorrect" | "victory") => {
-    try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      if (type === "correct") {
-        osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-        osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1); // A5
-        gain.gain.setValueAtTime(0.15, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.35);
-      } else if (type === "incorrect") {
-        osc.type = "sawtooth";
-        osc.frequency.setValueAtTime(150, ctx.currentTime);
-        gain.gain.setValueAtTime(0.2, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.3);
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
       }
-    } catch (e) {
-      console.warn("Audio error:", e);
     }
-  };
+  }
+  return matrix[b.length][a.length];
+}
 
-  // Speech Pronunciation
-  const speakText = (text: string) => {
-    if (!speechEnabled || typeof window === "undefined" || !("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
-    window.speechSynthesis.speak(utterance);
-  };
+function isAnswerAcceptable(userGuess: string, officialAnswer: string): boolean {
+  const rawGuess = userGuess.trim().toLowerCase();
+  const rawTarget = officialAnswer.trim().toLowerCase();
+  if (!rawGuess) return false;
+  if (rawGuess === rawTarget) return true;
 
-  // Generate 4 Multiple Choice Options (1 correct + 3 distractor)
-  const generateOptions = useCallback((currentQ: GameQuestion, pool: GameQuestion[]) => {
-    const correctAnswer = currentQ.name;
-    const distractors = Array.from(new Set(
-      pool.map(q => q.name).filter(n => n !== correctAnswer)
-    ));
-    const shuffledDistractors = fisherYatesShuffle(distractors).slice(0, 3);
-    const combined = fisherYatesShuffle([correctAnswer, ...shuffledDistractors]);
-    setOptions(combined);
-  }, []);
+  // Check Levenshtein on full strings
+  const fullTolerance = rawTarget.length > 5 ? 2 : 1;
+  if (getLevenshteinDistance(rawGuess, rawTarget) <= fullTolerance) return true;
 
-  // Launch a Game Round
-  const startRound = (filteredCategory?: string, filteredRegion?: string) => {
-    let pool = [...allQuestions];
+  // Check normalized core names (e.g., "sahara" vs "sahara desert" -> both become "sahara")
+  const normGuess = normalizeAnswer(rawGuess);
+  const normTarget = normalizeAnswer(rawTarget);
+  if (normGuess && normTarget) {
+    if (normGuess === normTarget) return true;
+    const normTolerance = normTarget.length > 5 ? 2 : 1;
+    if (getLevenshteinDistance(normGuess, normTarget) <= normTolerance) return true;
+  }
+  return false;
+}
 
-    if (filteredCategory && filteredCategory !== "All" && filteredCategory !== "Mixed Global") {
-      pool = pool.filter(q => q.category.toLowerCase().includes(filteredCategory.toLowerCase()));
-    }
-    if (filteredRegion && filteredRegion !== "Global") {
-      pool = pool.filter(q => q.region.toLowerCase().includes(filteredRegion.toLowerCase()));
-    }
+function playTone(type: "success" | "error" | "victory") {
+  try {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
 
-    if (pool.length < 4) {
-      pool = [...DEFAULT_QUESTIONS];
-    }
-
-    const round = fisherYatesShuffle(pool).slice(0, 10);
-    setCurrentQuestions(round);
-    setCurrentIdx(0);
-    setScore(0);
-    setStreak(0);
-    setMaxStreak(0);
-    setCorrectCount(0);
-    setIsAnswered(false);
-    setSelectedAnswer(null);
-    setTimeLeft(15);
-    setViewState("playing");
-
-    if (round.length > 0) {
-      generateOptions(round[0], allQuestions);
-    }
-  };
-
-  // Timer Countdown
-  useEffect(() => {
-    if (viewState !== "playing" || isAnswered) return;
-
-    if (timeLeft <= 0) {
-      handleAnswerSelect("__TIMEOUT__");
+    if (type === "victory") {
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
+        gain.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.12);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.3);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + i * 0.12);
+        osc.stop(ctx.currentTime + i * 0.12 + 0.3);
+      });
       return;
     }
 
-    timerRef.current = setInterval(() => {
-      setTimeLeft(prev => prev - 1);
-    }, 1000);
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
 
-    return () => clearInterval(timerRef.current);
-  }, [viewState, isAnswered, timeLeft]);
+    if (type === "success") {
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(659.25, ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.3);
+    } else {
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(220, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(140, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.22);
+    }
+  } catch (e) {
+    // Ignore if audio is restricted
+  }
+}
 
-  // Handle Answer Click
-  const handleAnswerSelect = (optionName: string) => {
-    if (isAnswered) return;
-    clearInterval(timerRef.current);
+type GameStep = "main_cat" | "sub_cat" | "settings" | "playing" | "results";
 
-    const currentQ = currentQuestions[currentIdx];
-    const isCorrect = optionName === currentQ.name;
+const STORAGE_KEY = "geoglobe_active_mission";
 
-    setSelectedAnswer(optionName);
-    setIsAnswered(true);
+export default function GeoGame() {
+  const navigate = useNavigate();
 
-    if (isCorrect) {
-      playSound("correct");
-      speakText(`Correct! ${currentQ.name}`);
-      const speedBonus = timeLeft * 10;
-      const comboMultiplier = streak >= 3 ? 2.0 : streak >= 1 ? 1.5 : 1.0;
-      const points = Math.round((100 + speedBonus) * comboMultiplier);
+  // Multi-step Flow State
+  const [step, setStep] = useState<GameStep>("main_cat");
+  const [mainCat, setMainCat] = useState<string>("Mixed Global");
+  const [subCat, setSubCat] = useState<string>("Global");
+  const [gameLength, setGameLength] = useState<number | "unlimited">(5);
 
-      setScore(prev => prev + points);
-      setCorrectCount(prev => prev + 1);
-      setStreak(prev => {
-        const next = prev + 1;
-        if (next > maxStreak) setMaxStreak(next);
-        return next;
+  // Active Session State
+  const [questions, setQuestions] = useState<GameQuestion[]>([]);
+  const [questionBank, setQuestionBank] = useState<GameQuestion[]>([]);
+  const [isQuestionBankReady, setIsQuestionBankReady] = useState(false);
+  const [questionBankError, setQuestionBankError] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [wrong, setWrong] = useState(0);
+  const [userInput, setUserInput] = useState("");
+  const [gameState, setGameState] = useState<"playing" | "revealed">("playing");
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [shake, setShake] = useState(false);
+  const [confirmQuit, setConfirmQuit] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    let isActive = true;
+
+    loadGameQuestions()
+      .then((loadedQuestions) => {
+        if (!isActive) return;
+        if (loadedQuestions.length === 0) {
+          setQuestionBankError("The spreadsheet has no usable questions.");
+          return;
+        }
+        setQuestionBank(loadedQuestions);
+      })
+      .catch((error) => {
+        console.error("Unable to load the GeoGlobe question sheet:", error);
+        if (isActive) setQuestionBankError("The live question sheet is unavailable.");
+      })
+      .finally(() => {
+        if (isActive) setIsQuestionBankReady(true);
       });
-    } else {
-      playSound("incorrect");
-      speakText(`Incorrect. The answer is ${currentQ.name}`);
-      setStreak(0);
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  // Save session state to localStorage on every state change
+  const persistSession = useCallback((
+    curStep: GameStep,
+    qList: GameQuestion[],
+    idx: number,
+    sc: number,
+    wr: number,
+    mCat: string,
+    sCat: string,
+    gLen: number | "unlimited",
+    gState: "playing" | "revealed",
+    correct: boolean | null,
+    uInput: string
+  ) => {
+    if (curStep === "playing") {
+      const missionData = {
+        step: curStep,
+        questions: qList,
+        index: idx,
+        score: sc,
+        wrong: wr,
+        mainCat: mCat,
+        subCat: sCat,
+        gameLength: gLen,
+        gameState: gState,
+        isCorrect: correct,
+        userInput: uInput,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(missionData));
+    }
+  }, []);
+
+  // Restore session from localStorage on initial mount (e.g., returning from /preview-map)
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.questions && parsed.questions.length > 0 && parsed.step === "playing") {
+          setQuestions(parsed.questions);
+          setCurrentIndex(parsed.index || 0);
+          setScore(parsed.score || 0);
+          setWrong(parsed.wrong || 0);
+          setMainCat(parsed.mainCat || "Mixed Global");
+          setSubCat(parsed.subCat || "Global");
+          setGameLength(parsed.gameLength || 5);
+          setGameState(parsed.gameState || "playing");
+          setIsCorrect(parsed.isCorrect ?? null);
+          setUserInput(parsed.userInput || "");
+          setStep("playing");
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to restore session:", e);
+    }
+  }, []);
+
+  // Focus input when moving to a new question
+  useEffect(() => {
+    if (step === "playing" && gameState === "playing") {
+      inputRef.current?.focus();
+    }
+  }, [step, currentIndex, gameState]);
+
+  // Sequential Back button handler
+  const handleSequentialBack = () => {
+    if (step === "settings") {
+      setStep("sub_cat");
+    } else if (step === "sub_cat") {
+      setStep("main_cat");
+    } else if (step === "main_cat") {
+      navigate("/");
     }
   };
 
-  // Next Question or End Round
+  // Start the mission after selecting category, region, and settings
+  const startGame = () => {
+    let pool = [...questionBank];
+
+    // Filter by main category if not Mixed Global
+    if (mainCat !== "Mixed Global") {
+      pool = pool.filter(q => q.category.toLowerCase() === mainCat.toLowerCase());
+    }
+
+    // Filter by region if not Global
+    if (subCat !== "Global") {
+      const regionPool = pool.filter(q => q.region.toLowerCase() === subCat.toLowerCase());
+      if (regionPool.length >= 3) {
+        pool = regionPool;
+      }
+    }
+
+    // True Fisher-Yates Random Shuffle
+    const shuffled = fisherYatesShuffle(pool);
+    const finalCount = gameLength === "unlimited" ? shuffled.length : Math.min(gameLength, shuffled.length);
+    const selectedQuestions = shuffled.slice(0, finalCount);
+
+    setQuestions(selectedQuestions);
+    setCurrentIndex(0);
+    setScore(0);
+    setWrong(0);
+    setUserInput("");
+    setGameState("playing");
+    setIsCorrect(null);
+    setStep("playing");
+
+    persistSession(
+      "playing",
+      selectedQuestions,
+      0,
+      0,
+      0,
+      mainCat,
+      subCat,
+      gameLength,
+      "playing",
+      null,
+      ""
+    );
+  };
+
+  // Submit Answer with Fuzzy Matching
+  const handleSubmitAnswer = () => {
+    if (!userInput.trim() || gameState === "revealed") return;
+
+    const current = questions[currentIndex];
+    const correct = isAnswerAcceptable(userInput, current.name);
+
+    if (correct) {
+      if (soundEnabled) playTone("success");
+      const nextScore = score + 1;
+      setScore(nextScore);
+      setIsCorrect(true);
+      setGameState("revealed");
+      persistSession(
+        "playing",
+        questions,
+        currentIndex,
+        nextScore,
+        wrong,
+        mainCat,
+        subCat,
+        gameLength,
+        "revealed",
+        true,
+        userInput
+      );
+    } else {
+      if (soundEnabled) playTone("error");
+      // Trigger error shake animation
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      const nextWrong = wrong + 1;
+      setWrong(nextWrong);
+      setIsCorrect(false);
+      setGameState("revealed");
+      persistSession(
+        "playing",
+        questions,
+        currentIndex,
+        score,
+        nextWrong,
+        mainCat,
+        subCat,
+        gameLength,
+        "revealed",
+        false,
+        userInput
+      );
+    }
+  };
+
+  // Skip / Reveal
+  const handleRevealSkip = () => {
+    if (gameState === "revealed") return;
+    if (soundEnabled) playTone("error");
+    const nextWrong = wrong + 1;
+    setWrong(nextWrong);
+    setIsCorrect(false);
+    setGameState("revealed");
+    persistSession(
+      "playing",
+      questions,
+      currentIndex,
+      score,
+      nextWrong,
+      mainCat,
+      subCat,
+      gameLength,
+      "revealed",
+      false,
+      userInput
+    );
+  };
+
+  // Proceed to next question or complete game
   const handleNextQuestion = () => {
-    if (currentIdx + 1 < currentQuestions.length) {
-      const nextIdx = currentIdx + 1;
-      setCurrentIdx(nextIdx);
-      setIsAnswered(false);
-      setSelectedAnswer(null);
-      setTimeLeft(15);
-      generateOptions(currentQuestions[nextIdx], allQuestions);
+    if (currentIndex < questions.length - 1) {
+      const nextIdx = currentIndex + 1;
+      setCurrentIndex(nextIdx);
+      setUserInput("");
+      setGameState("playing");
+      setIsCorrect(null);
+      persistSession(
+        "playing",
+        questions,
+        nextIdx,
+        score,
+        wrong,
+        mainCat,
+        subCat,
+        gameLength,
+        "playing",
+        null,
+        ""
+      );
     } else {
-      setViewState("summary");
-      playSound("victory");
+      // Game Finished
+      localStorage.removeItem(STORAGE_KEY);
+      if (soundEnabled) playTone("victory");
+      setStep("results");
     }
   };
 
-  const currentQ = currentQuestions[currentIdx];
+  // Quit active game
+  const handleQuitGame = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setConfirmQuit(false);
+    setStep("main_cat");
+  };
+
+  const current = questions[currentIndex];
+
+  if (!isQuestionBankReady) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center text-sm text-gray-400">
+        <span className="flex items-center gap-3">
+          <span className="h-5 w-5 animate-spin rounded-full border-2 border-geoCyan border-t-transparent" />
+          Loading your GeoGlobe questions...
+        </span>
+      </div>
+    );
+  }
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 15 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -15 }}
-      className="w-full pb-20 font-sans text-white max-w-5xl mx-auto"
+      exit={{ opacity: 0, y: -20 }}
+      className="w-full pb-20"
     >
-      {/* Top Header Row */}
-      <div className="flex items-center justify-between gap-3 mb-6">
-        <button
-          onClick={() => {
-            if (viewState !== "hub") setViewState("hub");
-            else navigate("/");
-          }}
-          className="inline-flex items-center gap-2 bg-gray-900/40 hover:bg-gray-900/80 text-gray-300 hover:text-white px-4 py-2 rounded-full border border-white/10 transition-all text-xs font-semibold backdrop-blur-xl hover:border-geoCyan/40 cursor-pointer"
-        >
-          <ArrowLeft className="w-4 h-4 text-geoCyan" />
-          <span>{viewState !== "hub" ? "Games Hub" : "Home"}</span>
-        </button>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setSpeechEnabled(!speechEnabled)}
-            className="p-2 rounded-full bg-gray-900/40 border border-white/10 text-gray-300 hover:text-white cursor-pointer"
-            title={speechEnabled ? "Mute Pronunciation" : "Enable Pronunciation"}
-          >
-            {speechEnabled ? <Volume2 className="w-4 h-4 text-geoCyan" /> : <VolumeX className="w-4 h-4 text-gray-500" />}
-          </button>
+      {questionBankError && (
+        <div role="status" className="mb-5 rounded-xl border border-geoYellow/20 bg-geoYellow/5 px-4 py-3 text-xs text-geoYellow">
+          {questionBankError} Using the built-in question bank for this session.
         </div>
-      </div>
+      )}
 
       {/* ─────────────────────────────────────────────────────────────
-          STATE 1: GAMES HUB (Two Main Section Blocks)
+          STEP 1: MAIN CATEGORY SELECTION
          ───────────────────────────────────────────────────────────── */}
-      {viewState === "hub" && (
-        <div className="space-y-10">
-          {/* Main Hero Header */}
-          <div className="text-center max-w-2xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-geoYellow/10 border border-geoYellow/30 text-xs font-bold text-geoYellow uppercase tracking-wider mb-3">
-              <Trophy className="w-3.5 h-3.5" />
-              <span>GeoGlobe Games Hub</span>
+      {step === "main_cat" && (
+        <div className="max-w-lg mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <button
+              onClick={handleSequentialBack}
+              className="flex items-center gap-2 text-gray-400 hover:text-geoCyan transition-colors text-sm font-semibold group"
+            >
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+              Home
+            </button>
+            <span className="text-xs uppercase tracking-widest text-geoYellow font-bold">
+              Step 1 of 3
+            </span>
+          </div>
+
+          <div className="bg-gray-800/90 backdrop-blur-xl rounded-[2.5rem] p-6 md:p-8 shadow-2xl border border-white/10 text-center">
+            <div className="w-14 h-14 bg-geoCyan/10 text-geoCyan rounded-2xl flex items-center justify-center mx-auto mb-4 border border-geoCyan/20 shadow-md">
+              <Compass className="w-7 h-7" />
             </div>
-            <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-3">
-              Choose Your Challenge
+            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
+              Select Category
             </h1>
-            <p className="text-gray-400 text-xs md:text-sm leading-relaxed">
-              Play quick 10-question map rounds or dive into regional marathon quizzes across flags, capitals, and country frontiers.
+            <p className="text-gray-400 text-xs md:text-sm mb-6 leading-relaxed">
+              Choose the geographic theme for your challenge.
             </p>
-          </div>
 
-          <AdBanner slotId="game-hub-header-slot" className="my-0" />
-
-          {/* ─────────────────────────────────────────────────────────────
-              SECTION 1: "Quick Map Challenges" (Leaflet Map CSV Engine)
-             ───────────────────────────────────────────────────────────── */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <div className="flex items-center gap-2">
-                <Compass className="w-5 h-5 text-geoCyan" />
-                <h2 className="text-xl font-extrabold text-white">Section 1: Quick Map Challenges</h2>
-              </div>
-              <span className="text-xs font-mono text-geoCyan font-bold bg-geoCyan/10 px-3 py-1 rounded-full border border-geoCyan/20">
-                Leaflet CSV Engine
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Mixed Global */}
-              <motion.div
-                whileHover={{ y: -4 }}
-                onClick={() => startRound("All", "Global")}
-                className="bg-gray-900/60 backdrop-blur-xl border border-white/10 hover:border-geoCyan/50 rounded-3xl p-5 cursor-pointer group flex flex-col justify-between shadow-xl"
-              >
-                <div>
-                  <div className="w-10 h-10 rounded-2xl bg-geoCyan/15 text-geoCyan flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <Globe className="w-5 h-5" />
-                  </div>
-                  <h3 className="text-base font-extrabold text-white group-hover:text-geoCyan transition-colors">Mixed Global</h3>
-                  <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">
-                    A blend of border puzzles, world anomalies & flags.
-                  </p>
-                </div>
-                <div className="mt-5 flex items-center justify-between text-xs font-bold text-geoCyan border-t border-white/5 pt-3">
-                  <span>Start 10-Q Round</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </motion.div>
-
-              {/* Flags */}
-              <motion.div
-                whileHover={{ y: -4 }}
-                onClick={() => startRound("Flags", "Global")}
-                className="bg-gray-900/60 backdrop-blur-xl border border-white/10 hover:border-geoYellow/50 rounded-3xl p-5 cursor-pointer group flex flex-col justify-between shadow-xl"
-              >
-                <div>
-                  <div className="w-10 h-10 rounded-2xl bg-geoYellow/15 text-geoYellow flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <Flag className="w-5 h-5" />
-                  </div>
-                  <h3 className="text-base font-extrabold text-white group-hover:text-geoYellow transition-colors">Flags Quiz</h3>
-                  <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">
-                    Identify countries by their iconic national standards.
-                  </p>
-                </div>
-                <div className="mt-5 flex items-center justify-between text-xs font-bold text-geoYellow border-t border-white/5 pt-3">
-                  <span>Start 10-Q Round</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </motion.div>
-
-              {/* Borders */}
-              <motion.div
-                whileHover={{ y: -4 }}
-                onClick={() => startRound("Borders", "Global")}
-                className="bg-gray-900/60 backdrop-blur-xl border border-white/10 hover:border-geoCyan/50 rounded-3xl p-5 cursor-pointer group flex flex-col justify-between shadow-xl"
-              >
-                <div>
-                  <div className="w-10 h-10 rounded-2xl bg-geoCyan/15 text-geoCyan flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <Layers className="w-5 h-5" />
-                  </div>
-                  <h3 className="text-base font-extrabold text-white group-hover:text-geoCyan transition-colors">Borders</h3>
-                  <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">
-                    Disputed frontiers, enclaves, and border quirks.
-                  </p>
-                </div>
-                <div className="mt-5 flex items-center justify-between text-xs font-bold text-geoCyan border-t border-white/5 pt-3">
-                  <span>Start 10-Q Round</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </motion.div>
-
-              {/* Anomalies */}
-              <motion.div
-                whileHover={{ y: -4 }}
-                onClick={() => startRound("Anomalies", "Global")}
-                className="bg-gray-900/60 backdrop-blur-xl border border-white/10 hover:border-purple-400/50 rounded-3xl p-5 cursor-pointer group flex flex-col justify-between shadow-xl"
-              >
-                <div>
-                  <div className="w-10 h-10 rounded-2xl bg-purple-500/15 text-purple-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <Sparkles className="w-5 h-5" />
-                  </div>
-                  <h3 className="text-base font-extrabold text-white group-hover:text-purple-400 transition-colors">Anomalies</h3>
-                  <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">
-                    Unique geographical oddities and curiosities.
-                  </p>
-                </div>
-                <div className="mt-5 flex items-center justify-between text-xs font-bold text-purple-400 border-t border-white/5 pt-3">
-                  <span>Start 10-Q Round</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </motion.div>
-            </div>
-          </div>
-
-          {/* ─────────────────────────────────────────────────────────────
-              SECTION 2: "Globe & Category Marathons" (Page/Mode Based Engine)
-             ───────────────────────────────────────────────────────────── */}
-          <div className="space-y-6 pt-4">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <div className="flex items-center gap-2">
-                <Globe className="w-5 h-5 text-geoYellow" />
-                <h2 className="text-xl font-extrabold text-white">Section 2: Globe & Category Marathons</h2>
-              </div>
-              <span className="text-xs font-mono text-geoYellow font-bold bg-geoYellow/10 px-3 py-1 rounded-full border border-geoYellow/20">
-                Page / Mode Engine
-              </span>
-            </div>
-
-            {/* Sub-Category Tab Buttons */}
-            <div className="flex flex-wrap items-center gap-2 bg-gray-900/80 p-1.5 rounded-2xl border border-white/10 backdrop-blur-xl">
-              <button
-                onClick={() => setActiveSection("flags")}
-                className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 cursor-pointer ${
-                  activeSection === "flags" ? "bg-geoYellow text-gray-950 shadow-md" : "text-gray-400 hover:text-white"
-                }`}
-              >
-                <Flag className="w-4 h-4" />
-                <span>🚩 Flags</span>
-              </button>
-
-              <button
-                onClick={() => setActiveSection("countries")}
-                className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 cursor-pointer ${
-                  activeSection === "countries" ? "bg-geoYellow text-gray-950 shadow-md" : "text-gray-400 hover:text-white"
-                }`}
-              >
-                <Globe className="w-4 h-4" />
-                <span>🌍 Countries</span>
-              </button>
-
-              <button
-                onClick={() => setActiveSection("capitals")}
-                className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 cursor-pointer ${
-                  activeSection === "capitals" ? "bg-geoYellow text-gray-950 shadow-md" : "text-gray-400 hover:text-white"
-                }`}
-              >
-                <Compass className="w-4 h-4" />
-                <span>🏛️ Capitals</span>
-              </button>
-
-              <button
-                onClick={() => setActiveSection("mixed")}
-                className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 cursor-pointer ${
-                  activeSection === "mixed" ? "bg-geoYellow text-gray-950 shadow-md" : "text-gray-400 hover:text-white"
-                }`}
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>🎲 Mixed & Special</span>
-              </button>
-            </div>
-
-            {/* Grid of Regional Cards for Selected Sub-Section */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {["Africa", "Asia", "Europe", "North America", "South America", "Oceania"].map(reg => (
+            <div className="space-y-3">
+              {[
+                { label: "Mixed Global", desc: "A blend of border puzzles, world anomalies & flags", icon: <Globe className="w-5 h-5 text-geoCyan" /> },
+                { label: "Flags", desc: "Identify countries by their iconic national standards", icon: <Flag className="w-5 h-5 text-geoYellow" /> },
+                { label: "Borders", desc: "Disputed frontiers, enclaves, and border quirks", icon: <MapPin className="w-5 h-5 text-emerald-400" /> },
+                { label: "Anomalies", desc: "Unique geographical oddities and geographical curiosities", icon: <Layers className="w-5 h-5 text-purple-400" /> },
+              ].map((cat) => (
                 <button
-                  key={reg}
-                  onClick={() => startRound(activeSection, reg)}
-                  className="bg-gray-900/60 hover:bg-geoCyan/20 border border-white/10 hover:border-geoCyan rounded-2xl p-4 text-center transition-all cursor-pointer group shadow-md"
+                  key={cat.label}
+                  onClick={() => {
+                    setMainCat(cat.label);
+                    setStep("sub_cat");
+                  }}
+                  className={`w-full p-4 rounded-2xl border transition-all text-left flex items-center gap-4 group ${
+                    mainCat === cat.label
+                      ? "bg-geoCyan/15 border-geoCyan text-white"
+                      : "bg-gray-900/60 hover:bg-gray-900 border-white/5 hover:border-geoCyan/40 text-gray-300"
+                  }`}
                 >
-                  <span className="text-2xl mb-1 block group-hover:scale-110 transition-transform">
-                    {reg === "Africa" ? "🌍" : reg === "Asia" ? "🌏" : reg === "Europe" ? "🏰" : reg === "North America" ? "🗽" : reg === "South America" ? "🗿" : "🌊"}
-                  </span>
-                  <span className="text-xs font-bold text-white group-hover:text-geoCyan block truncate">{reg}</span>
-                  <span className="text-[10px] text-gray-400 capitalize block mt-0.5">{activeSection}</span>
+                  <div className="p-3 bg-gray-800 rounded-xl group-hover:scale-110 transition-transform">
+                    {cat.icon}
+                  </div>
+                  <div className="flex-grow">
+                    <h3 className="font-bold text-base text-white group-hover:text-geoCyan transition-colors">
+                      {cat.label}
+                    </h3>
+                    <p className="text-xs text-gray-400 mt-0.5">{cat.desc}</p>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-gray-500 group-hover:text-geoCyan group-hover:translate-x-1 transition-all" />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────
+          STEP 2: SUB-CATEGORY (REGION) SELECTION
+         ───────────────────────────────────────────────────────────── */}
+      {step === "sub_cat" && (
+        <div className="max-w-lg mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <button
+              onClick={handleSequentialBack}
+              className="flex items-center gap-2 text-gray-400 hover:text-geoCyan transition-colors text-sm font-semibold group"
+            >
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+              Category
+            </button>
+            <span className="text-xs uppercase tracking-widest text-geoYellow font-bold">
+              Step 2 of 3
+            </span>
+          </div>
+
+          <div className="bg-gray-800/90 backdrop-blur-xl rounded-[2.5rem] p-6 md:p-8 shadow-2xl border border-white/10 text-center">
+            <span className="text-xs font-bold text-geoCyan uppercase tracking-widest mb-1 block">
+              {mainCat}
+            </span>
+            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
+              Select Region
+            </h1>
+            <p className="text-gray-400 text-xs md:text-sm mb-6">
+              Focus your trivia on a specific continent or explore globally.
+            </p>
+
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {["Global", "Africa", "Asia", "Europe", "Americas", "Oceania"].map((region) => (
+                <button
+                  key={region}
+                  onClick={() => setSubCat(region)}
+                  className={`p-4 rounded-2xl border font-bold text-sm transition-all flex flex-col items-center justify-center gap-2 ${
+                    subCat === region
+                      ? "bg-geoCyan text-gray-900 border-geoCyan shadow-lg scale-102"
+                      : "bg-gray-900/60 hover:bg-gray-900 border-white/5 text-gray-300 hover:border-geoCyan/40"
+                  }`}
+                >
+                  <Globe className={`w-5 h-5 ${subCat === region ? "text-gray-900" : "text-geoCyan"}`} />
+                  {region}
                 </button>
               ))}
             </div>
 
-            {/* Special All-in-One Marathon Banners */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              <div
-                onClick={() => startRound(activeSection, "Global")}
-                className="bg-gradient-to-r from-geoYellow/20 via-gray-900 to-black border border-geoYellow/40 rounded-3xl p-6 cursor-pointer hover:border-geoYellow transition-all group shadow-xl flex items-center justify-between"
-              >
-                <div>
-                  <span className="text-[10px] font-mono font-bold text-geoYellow uppercase tracking-wider block mb-1">ALL-IN-ONE MARATHON</span>
-                  <h3 className="text-lg font-black text-white group-hover:text-geoYellow transition-colors">
-                    {activeSection === "flags" ? "All 195 Flags Challenge" : activeSection === "capitals" ? "All 195 World Capitals" : "Countries of the World Run"}
-                  </h3>
-                  <p className="text-xs text-gray-400 mt-1">Test your global mastery across all continents.</p>
-                </div>
-                <div className="w-10 h-10 rounded-full bg-geoYellow text-gray-950 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                  <Play className="w-5 h-5 fill-current" />
-                </div>
-              </div>
-
-              <div
-                onClick={() => startRound("All", "Global")}
-                className="bg-gradient-to-r from-geoCyan/20 via-gray-900 to-black border border-geoCyan/40 rounded-3xl p-6 cursor-pointer hover:border-geoCyan transition-all group shadow-xl flex items-center justify-between"
-              >
-                <div>
-                  <span className="text-[10px] font-mono font-bold text-geoCyan uppercase tracking-wider block mb-1">RECALL CHALLENGE</span>
-                  <h3 className="text-lg font-black text-white group-hover:text-geoCyan transition-colors">Timed Recall Memory Run</h3>
-                  <p className="text-xs text-gray-400 mt-1">High-speed recall across all geopolitical frontiers.</p>
-                </div>
-                <div className="w-10 h-10 rounded-full bg-geoCyan text-gray-950 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                  <Play className="w-5 h-5 fill-current" />
-                </div>
-              </div>
-            </div>
+            <button
+              onClick={() => setStep("settings")}
+              className="w-full bg-geoCyan hover:bg-geoYellow text-gray-900 font-bold py-3.5 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2 text-base"
+            >
+              Continue to Settings <ArrowRight className="w-5 h-5" />
+            </button>
           </div>
         </div>
       )}
 
       {/* ─────────────────────────────────────────────────────────────
-          STATE 2: PLAYING ROUND (15s Timed 10-Question Gameplay)
+          STEP 3: GAME SETTINGS (ROUND LENGTH)
          ───────────────────────────────────────────────────────────── */}
-      {viewState === "playing" && currentQ && (
-        <div className="space-y-6">
-          {/* Top Progress & Stats Bar */}
-          <div className="bg-gray-900/80 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 shadow-2xl flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono text-gray-400 uppercase font-bold">Question</span>
-              <span className="text-base font-black text-white">{currentIdx + 1} <span className="text-gray-500 font-normal">/ {currentQuestions.length}</span></span>
+      {step === "settings" && (
+        <div className="max-w-lg mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <button
+              onClick={handleSequentialBack}
+              className="flex items-center gap-2 text-gray-400 hover:text-geoCyan transition-colors text-sm font-semibold group"
+            >
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+              Region
+            </button>
+            <span className="text-xs uppercase tracking-widest text-geoYellow font-bold">
+              Step 3 of 3
+            </span>
+          </div>
+
+          <div className="bg-gray-800/90 backdrop-blur-xl rounded-[2.5rem] p-6 md:p-8 shadow-2xl border border-white/10 text-center">
+            <div className="w-14 h-14 bg-geoYellow/10 text-geoYellow rounded-2xl flex items-center justify-center mx-auto mb-4 border border-geoYellow/20 shadow-md">
+              <Trophy className="w-7 h-7" />
+            </div>
+            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
+              Game Settings
+            </h1>
+            <p className="text-gray-400 text-xs md:text-sm mb-6">
+              Choose how many questions you want in this session.
+            </p>
+
+            <div className="space-y-3 mb-8">
+              {[
+                { value: 5, label: "5 Questions", tag: "Quick Sprint" },
+                { value: 10, label: "10 Questions", tag: "Standard Round" },
+                { value: "unlimited" as const, label: "Unlimited", tag: "Endless Challenge" },
+              ].map((opt) => (
+                <button
+                  key={String(opt.value)}
+                  onClick={() => setGameLength(opt.value)}
+                  className={`w-full p-4 rounded-2xl border transition-all text-left flex items-center justify-between ${
+                    gameLength === opt.value
+                      ? "bg-geoCyan/15 border-geoCyan text-white"
+                      : "bg-gray-900/60 hover:bg-gray-900 border-white/5 hover:border-geoCyan/40 text-gray-300"
+                  }`}
+                >
+                  <div>
+                    <span className="font-bold text-base block text-white">{opt.label}</span>
+                    <span className="text-xs text-gray-400">{opt.tag}</span>
+                  </div>
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                    gameLength === opt.value ? "border-geoCyan bg-geoCyan" : "border-gray-600"
+                  }`}>
+                    {gameLength === opt.value && <div className="w-2 h-2 rounded-full bg-gray-900"></div>}
+                  </div>
+                </button>
+              ))}
             </div>
 
-            {/* Score & Streak */}
-            <div className="flex items-center gap-6 font-mono">
-              <div className="flex items-center gap-1.5 text-geoYellow">
-                <Trophy className="w-4 h-4" />
-                <span className="text-base font-black">{score}</span>
-              </div>
-              {streak > 0 && (
-                <div className="flex items-center gap-1 text-orange-400 animate-pulse">
-                  <Flame className="w-4 h-4 fill-current" />
-                  <span className="text-sm font-bold">{streak}x</span>
+            <div className="p-4 bg-gray-900/60 rounded-2xl border border-white/5 text-xs text-gray-400 mb-6 text-left space-y-1">
+              <p>📍 Theme: <b className="text-white">{mainCat}</b></p>
+              <p>🌍 Region: <b className="text-white">{subCat}</b></p>
+            </div>
+
+            <button
+              onClick={startGame}
+              className="w-full bg-geoCyan hover:bg-geoYellow text-gray-900 font-bold py-3.5 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2 text-base shadow-geoCyan/20"
+            >
+              Start Game <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────
+          STEP 4: PLAYING MODE (TRIVIA CARD)
+         ───────────────────────────────────────────────────────────── */}
+      {step === "playing" && current && (
+        <div className="max-w-lg mx-auto">
+          {/* Top Bar with Sequential Quit Confirmation */}
+          <div className="flex items-center justify-between mb-4 px-2">
+            <button
+              onClick={() => setConfirmQuit(true)}
+              className="text-xs text-gray-400 hover:text-rose-400 transition-colors font-semibold flex items-center gap-1.5"
+            >
+              <X className="w-4 h-4" /> Quit Game
+            </button>
+
+            <div className="flex items-center gap-3.5 text-xs font-bold">
+              <button
+                onClick={() => setSoundEnabled(!soundEnabled)}
+                className="text-gray-400 hover:text-geoCyan transition-colors p-1"
+                title={soundEnabled ? "Mute audio" : "Enable audio"}
+                aria-label="Toggle audio effects"
+              >
+                {soundEnabled ? (
+                  <Volume2 className="w-4 h-4 text-geoCyan" />
+                ) : (
+                  <VolumeX className="w-4 h-4 text-gray-500" />
+                )}
+              </button>
+              <span className="text-geoCyan">Score: {score}</span>
+              <span className="text-gray-400">
+                Q {currentIndex + 1} of {questions.length}
+              </span>
+            </div>
+          </div>
+
+          {/* Card Wrapper (matches contact form size: max-w-lg, p-6 md:p-8) */}
+          <div className="bg-gray-800/90 backdrop-blur-xl rounded-[2.5rem] p-6 md:p-8 shadow-2xl border border-white/10 relative overflow-hidden">
+            {/* Visual Flag / Media Container */}
+            <div className="w-full h-36 md:h-48 bg-gray-900 rounded-2xl flex items-center justify-center mb-6 border border-gray-700/80 overflow-hidden relative shadow-inner">
+              {current.category?.toLowerCase() === "flags" && current.countryCode ? (
+                <img
+                  src={`https://flagcdn.com/w640/${current.countryCode.toLowerCase()}.png`}
+                  alt="Country Flag"
+                  className="w-full h-full object-contain p-3"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center p-4 text-center">
+                  <img
+                    src="https://lh3.googleusercontent.com/d/1PYQ705DpgwDPAV7kERrpa8a0m8hFdq5w"
+                    alt="GeoGlobe Logo"
+                    className="w-12 h-12 object-contain mb-2 filter drop-shadow-[0_2px_8px_rgba(66,194,203,0.3)] animate-float"
+                  />
+                  <span className="text-xs font-bold text-geoCyan uppercase tracking-widest">
+                    {current.category} • {current.region}
+                  </span>
+                </div>
+              )}
+
+              {/* Status Badge in corner */}
+              {gameState === "revealed" && (
+                <div className="absolute top-3 right-3">
+                  {isCorrect ? (
+                    <CheckCircle2 className="text-emerald-400 w-8 h-8 fill-emerald-500/20" />
+                  ) : (
+                    <XCircle className="text-rose-500 w-8 h-8 fill-rose-500/20" />
+                  )}
                 </div>
               )}
             </div>
 
-            {/* 15s Timer */}
-            <div className={`flex items-center gap-1.5 font-mono text-sm font-black px-3 py-1 rounded-full border ${
-              timeLeft <= 5 ? "bg-rose-500/20 text-rose-400 border-rose-500/40 animate-pulse" : "bg-black/40 text-geoCyan border-white/10"
-            }`}>
-              <Clock className="w-4 h-4" />
-              <span>{timeLeft}s</span>
-            </div>
-          </div>
-
-          {/* Question Card Header */}
-          <div className="bg-gray-900/60 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-6 md:p-8 text-center space-y-3 shadow-2xl relative overflow-hidden">
-            <div className="inline-flex items-center gap-2 text-xs font-bold text-geoCyan uppercase tracking-widest bg-geoCyan/10 px-3 py-1 rounded-full border border-geoCyan/20">
-              <Compass className="w-3.5 h-3.5" />
-              <span>{currentQ.region} • {currentQ.category}</span>
+            {/* Clue / Prompt */}
+            <div className="text-center mb-6">
+              <h2 className="text-lg md:text-xl font-bold text-white mb-2 leading-snug">
+                {current.title}
+              </h2>
+              {current.clue && (
+                <p className="text-gray-300 text-xs md:text-sm leading-relaxed max-w-md mx-auto">
+                  {current.clue}
+                </p>
+              )}
             </div>
 
-            <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-              {currentQ.title}
-            </h2>
+            {/* Answer Input */}
+            <div className={`${shake ? "animate-shake" : ""} mb-4 relative`}>
+              <input
+                ref={inputRef}
+                type="text"
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    if (gameState === "playing") handleSubmitAnswer();
+                    else handleNextQuestion();
+                  }
+                }}
+                disabled={gameState === "revealed"}
+                placeholder={gameState === "revealed" ? "Answer revealed" : "Type your answer..."}
+                style={{ fontSize: "16px" }}
+                className={`w-full bg-gray-900 border-2 outline-none text-white text-center text-base md:text-lg p-3.5 md:p-4 rounded-2xl transition-all placeholder-gray-500 shadow-inner ${
+                  gameState === "revealed"
+                    ? isCorrect
+                      ? "border-emerald-500/50 bg-emerald-950/20 text-emerald-300"
+                      : "border-rose-500/50 bg-rose-950/20 text-rose-300"
+                    : shake
+                    ? "border-rose-500 ring-2 ring-rose-500/30"
+                    : "border-gray-700 focus:border-geoCyan"
+                }`}
+              />
+            </div>
 
-            {currentQ.clue && (
-              <p className="text-xs md:text-sm text-gray-300 max-w-xl mx-auto leading-relaxed">
-                "{currentQ.clue}"
-              </p>
-            )}
-
-            {/* Flag Badge or Country Emblem */}
-            {currentQ.countryCode && (
-              <div className="pt-2 flex justify-center">
-                <div className="w-12 h-8 rounded-lg overflow-hidden border border-white/20 shadow-lg">
-                  <img
-                    src={`https://flagcdn.com/w320/${currentQ.countryCode.toLowerCase()}.png`}
-                    alt=""
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 4 Multiple Choice Answer Options */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {options.map((option, idx) => {
-              const isSelected = selectedAnswer === option;
-              const isCorrectOpt = option === currentQ.name;
-
-              let btnStyle = "bg-gray-900/60 hover:bg-gray-800 border-white/10 text-white";
-              if (isAnswered) {
-                if (isCorrectOpt) {
-                  btnStyle = "bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold shadow-lg shadow-emerald-500/20";
-                } else if (isSelected) {
-                  btnStyle = "bg-rose-500/20 border-rose-500 text-rose-300 font-bold";
-                } else {
-                  btnStyle = "bg-gray-900/20 border-white/5 text-gray-500 opacity-50";
-                }
-              }
-
-              return (
-                <button
-                  key={idx}
-                  onClick={() => handleAnswerSelect(option)}
-                  disabled={isAnswered}
-                  className={`p-4 rounded-2xl border text-left text-sm md:text-base font-semibold transition-all flex items-center justify-between cursor-pointer active:scale-98 ${btnStyle}`}
+            {/* Feedback Banner on Reveal */}
+            <AnimatePresence>
+              {gameState === "revealed" && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className={`p-4 rounded-2xl border mb-6 text-center ${
+                    isCorrect
+                      ? "bg-emerald-950/40 border-emerald-500/40 text-emerald-200"
+                      : "bg-rose-950/40 border-rose-500/40 text-rose-200"
+                  }`}
                 >
-                  <span className="truncate">{option}</span>
-                  {isAnswered && isCorrectOpt && <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />}
-                  {isAnswered && isSelected && !isCorrectOpt && <XCircle className="w-5 h-5 text-rose-400 shrink-0" />}
+                  <div className="flex items-center justify-center gap-2">
+                    <p className="font-bold text-sm md:text-base">
+                      {isCorrect ? `✓ Correct! Answer: ${current.name}` : `✗ Incorrect — Answer: ${current.name}`}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if ("speechSynthesis" in window) {
+                          window.speechSynthesis.cancel();
+                          const utt = new SpeechSynthesisUtterance(current.name);
+                          utt.lang = "en-US";
+                          utt.rate = 0.9;
+                          window.speechSynthesis.speak(utt);
+                        }
+                      }}
+                      className="p-1.5 rounded-full bg-white/10 hover:bg-geoCyan hover:text-gray-950 text-white transition-all cursor-pointer"
+                      title="Listen to pronunciation"
+                      aria-label="Listen to answer pronunciation"
+                    >
+                      <Volume2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  
+                  {current.fact && (
+                    <p className="text-xs text-gray-300 mt-1.5 italic leading-relaxed">
+                      {current.fact}
+                    </p>
+                  )}
+
+                  {/* View on Map Button linking directly to /map */}
+                  <div className="mt-3 flex justify-center">
+                    <button
+                      onClick={() => navigate(`/map?lat=${current.lat}&lng=${current.lng}&question=${encodeURIComponent(current.clue || current.title)}&answer=${encodeURIComponent(current.name)}&from=game`)}
+                      className="bg-gray-900/60 hover:bg-geoCyan hover:text-gray-950 text-geoCyan px-4 py-2 rounded-full text-xs font-bold transition-all border border-geoCyan/40 flex items-center gap-1.5 shadow-sm active:scale-95 backdrop-blur-md"
+                    >
+                      <MapPin className="w-3.5 h-3.5" />
+                      View on Map
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Action Buttons */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {gameState === "playing" ? (
+                <>
+                  <button
+                    onClick={handleSubmitAnswer}
+                    disabled={!userInput.trim()}
+                    className="bg-geoCyan hover:bg-geoYellow text-gray-900 font-bold py-3 rounded-2xl transition-all shadow-md text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Submit Answer
+                  </button>
+                  <button
+                    onClick={handleRevealSkip}
+                    className="bg-gray-900/60 hover:bg-gray-900 border border-gray-700 text-gray-300 hover:text-white font-bold py-3 rounded-2xl transition-all text-sm"
+                  >
+                    Reveal / Skip
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleNextQuestion}
+                  className="sm:col-span-2 bg-geoYellow hover:bg-geoCyan text-gray-900 font-bold py-3.5 rounded-2xl transition-all shadow-lg text-sm md:text-base flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  {currentIndex < questions.length - 1 ? "Next Question" : "View Results"}
+                  <ArrowRight className="w-4 h-4" />
                 </button>
-              );
-            })}
+              )}
+            </div>
           </div>
 
-          {/* Fact Box & Next Button after answering */}
-          {isAnswered && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-black/60 border border-white/15 rounded-3xl p-5 space-y-3 backdrop-blur-2xl"
-            >
-              <div className="flex items-center gap-2 text-geoYellow text-xs font-bold uppercase tracking-wider">
-                <Sparkles className="w-4 h-4" />
-                <span>Geographic Fact</span>
-              </div>
-              <p className="text-xs md:text-sm text-gray-200 leading-relaxed font-normal">
-                {currentQ.fact || `${currentQ.name} is a vital location in ${currentQ.region}.`}
-              </p>
-
-              <button
-                onClick={handleNextQuestion}
-                className="w-full bg-geoCyan hover:bg-geoYellow text-gray-950 font-extrabold py-3.5 rounded-full transition-all text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg mt-2"
-              >
-                <span>Next Question</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </motion.div>
-          )}
+          {/* Ad Placement below active trivia card */}
+          <AdBanner slotId="game-playing-slot" />
         </div>
       )}
 
       {/* ─────────────────────────────────────────────────────────────
-          STATE 3: SUMMARY SCREEN (Game Over Score & Badges)
+          STEP 5: GAME RESULTS SCREEN
          ───────────────────────────────────────────────────────────── */}
-      {viewState === "summary" && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="bg-gray-900/80 backdrop-blur-2xl border border-white/15 rounded-[2.5rem] p-8 text-center space-y-6 shadow-2xl max-w-xl mx-auto"
-        >
-          <div className="w-20 h-20 rounded-full bg-geoYellow/20 border-2 border-geoYellow text-geoYellow flex items-center justify-center mx-auto shadow-xl">
-            <Trophy className="w-10 h-10" />
-          </div>
-
-          <div>
-            <span className="text-xs font-mono font-bold text-geoYellow uppercase tracking-widest block mb-1">ROUND COMPLETED</span>
-            <h2 className="text-3xl font-black text-white tracking-tight">Challenge Summary</h2>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 bg-black/40 p-4 rounded-3xl border border-white/10 text-center font-mono">
-            <div>
-              <span className="text-[10px] text-gray-400 block uppercase">Final Score</span>
-              <span className="text-xl font-black text-geoYellow">{score}</span>
+      {step === "results" && (
+        <div className="max-w-lg mx-auto">
+          <div className="bg-gray-800/90 backdrop-blur-xl rounded-[2.5rem] p-8 shadow-2xl border border-white/10 text-center">
+            <div className="w-20 h-20 bg-geoCyan/10 text-geoCyan rounded-3xl flex items-center justify-center mx-auto mb-6 border border-geoCyan/20 shadow-xl">
+              <Trophy className="w-10 h-10 text-geoYellow" />
             </div>
-            <div>
-              <span className="text-[10px] text-gray-400 block uppercase">Accuracy</span>
-              <span className="text-xl font-black text-geoCyan">{Math.round((correctCount / currentQuestions.length) * 100)}%</span>
-            </div>
-            <div>
-              <span className="text-[10px] text-gray-400 block uppercase">Best Streak</span>
-              <span className="text-xl font-black text-orange-400">{maxStreak}x</span>
-            </div>
-          </div>
 
-          <div className="flex gap-3 pt-2">
-            <button
-              onClick={() => startRound("All", "Global")}
-              className="flex-1 bg-geoYellow hover:bg-geoCyan text-gray-950 font-extrabold py-3.5 rounded-full transition-all text-xs uppercase tracking-wider shadow-lg cursor-pointer"
-            >
-              Play Again
-            </button>
-            <button
-              onClick={() => setViewState("hub")}
-              className="flex-1 bg-white/10 hover:bg-white/20 text-white font-bold py-3.5 rounded-full transition-all text-xs uppercase tracking-wider border border-white/20 cursor-pointer"
-            >
-              Games Hub
-            </button>
+            <h1 className="text-3xl font-bold text-white mb-2">Game Complete!</h1>
+            <p className="text-gray-400 text-sm mb-6">
+              You tested your geographic knowledge in <b>{mainCat}</b> ({subCat}).
+            </p>
+
+            <div className="grid grid-cols-2 gap-4 mb-8">
+              <div className="bg-gray-900/60 p-4 rounded-2xl border border-white/5">
+                <span className="text-xs text-gray-400 uppercase font-semibold">Correct</span>
+                <p className="text-3xl font-extrabold text-emerald-400 mt-1">{score}</p>
+              </div>
+              <div className="bg-gray-900/60 p-4 rounded-2xl border border-white/5">
+                <span className="text-xs text-gray-400 uppercase font-semibold">Missed</span>
+                <p className="text-3xl font-extrabold text-rose-400 mt-1">{wrong}</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <button
+                onClick={() => setStep("main_cat")}
+                className="w-full bg-geoCyan hover:bg-geoYellow text-gray-900 font-bold py-3.5 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Play Again
+              </button>
+              <button
+                onClick={() => navigate("/map")}
+                className="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-3 rounded-2xl transition-all border border-gray-700 flex items-center justify-center gap-2 text-sm"
+              >
+                <MapPin className="w-4 h-4 text-geoCyan" />
+                Explore Interactive Map
+              </button>
+            </div>
           </div>
-        </motion.div>
+        </div>
       )}
+
+      {/* Quit Game Confirmation Modal */}
+      <AnimatePresence>
+        {confirmQuit && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          >
+            <div className="bg-gray-900 border border-white/10 rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl">
+              <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-3" />
+              <h3 className="text-lg font-bold text-white mb-2">Quit Active Game?</h3>
+              <p className="text-gray-400 text-xs mb-6 leading-relaxed">
+                Your current mission score and question progress will be reset.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setConfirmQuit(false)}
+                  className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-bold py-2.5 rounded-xl text-sm transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleQuitGame}
+                  className="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl text-sm transition-colors"
+                >
+                  Quit Game
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
