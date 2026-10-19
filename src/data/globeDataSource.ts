@@ -14,7 +14,21 @@ export interface CountryData {
   lng: number;
 }
 
-export const GLOBE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSN2eegc7Fbv9U2Wlui2p3kzG9mai7Q-lbNF-zHW2mNpOPNESCg5Oiwqvnr8IPIVVqfrfl6CVRkIqnV/pub?gid=0&single=true&output=csv";
+export interface GlobeQuizItem {
+  id: string;
+  countryName: string;
+  code: string;
+  capital: string;
+  population?: string;
+  region: string;
+  promptType: "flag" | "country" | "capital";
+  lat: number;
+  lng: number;
+}
+
+// Published CSV URLs for GlobeExplorer (gid=0) and GlobeGame (gid=1897290794)
+export const GLOBE_EXPLORER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSN2eegc7Fbv9U2Wlui2p3kzG9mai7Q-lbNF-zHW2mNpOPNESCg5Oiwqvnr8IPIVVqfrfl6CVRkIqnV/pub?gid=0&single=true&output=csv";
+export const GLOBE_GAME_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSN2eegc7Fbv9U2Wlui2p3kzG9mai7Q-lbNF-zHW2mNpOPNESCg5Oiwqvnr8IPIVVqfrfl6CVRkIqnV/pub?gid=1897290794&single=true&output=csv";
 
 export const COUNTRY_DATABASE: { [key: string]: CountryData } = {
   "Democratic Republic of the Congo": {
@@ -424,7 +438,7 @@ export const COUNTRY_DATABASE: { [key: string]: CountryData } = {
 
 export async function loadLiveGlobeCountries(): Promise<{ [key: string]: CountryData }> {
   try {
-    const res = await fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSN2eegc7Fbv9U2Wlui2p3kzG9mai7Q-lbNF-zHW2mNpOPNESCg5Oiwqvnr8IPIVVqfrfl6CVRkIqnV/pub?gid=0&single=true&output=csv");
+    const res = await fetch(GLOBE_EXPLORER_CSV_URL);
     if (!res.ok) return COUNTRY_DATABASE;
 
     const text = await res.text();
@@ -463,5 +477,51 @@ export async function loadLiveGlobeCountries(): Promise<{ [key: string]: Country
   } catch (err) {
     console.warn("Using default country database:", err);
     return COUNTRY_DATABASE;
+  }
+}
+
+export async function loadLiveGlobeGameQuestions(): Promise<GlobeQuizItem[]> {
+  try {
+    const res = await fetch(GLOBE_GAME_CSV_URL);
+    if (!res.ok) return [];
+
+    const text = await res.text();
+    const parsed = Papa.parse<string[]>(text, { header: false, skipEmptyLines: "greedy" });
+    const liveItems: GlobeQuizItem[] = [];
+
+    parsed.data.slice(1).forEach((cols, i) => {
+      const countryName = cols[1]?.replace(/"/g, "").trim();
+      const code = cols[2]?.replace(/"/g, "").trim() || "UN";
+      const capital = cols[3]?.replace(/"/g, "").trim() || "Capital Region";
+      const population = cols[4]?.replace(/"/g, "").trim();
+      const region = cols[5]?.replace(/"/g, "").trim() || "Global";
+      const promptTypeRaw = cols[6]?.replace(/"/g, "").trim().toLowerCase();
+      const lat = parseFloat(cols[7]);
+      const lng = parseFloat(cols[8]);
+
+      if (countryName) {
+        let promptType: "flag" | "country" | "capital" = "country";
+        if (promptTypeRaw === "flag" || promptTypeRaw === "capital") {
+          promptType = promptTypeRaw;
+        }
+
+        liveItems.push({
+          id: `live_3d_quiz_${i}`,
+          countryName,
+          code,
+          capital,
+          population,
+          region,
+          promptType,
+          lat: Number.isFinite(lat) ? lat : 10,
+          lng: Number.isFinite(lng) ? lng : 10
+        });
+      }
+    });
+
+    return liveItems;
+  } catch (err) {
+    console.warn("Using default 3D globe game questions:", err);
+    return [];
   }
 }
